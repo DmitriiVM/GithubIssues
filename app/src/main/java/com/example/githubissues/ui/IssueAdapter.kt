@@ -8,19 +8,27 @@ import com.example.githubissues.R
 import com.example.githubissues.pojo.Issue
 import kotlinx.android.synthetic.main.issue_item.view.*
 
-class IssueAdapter: RecyclerView.Adapter<IssueAdapter.GitHubViewHolder>() {
+class IssueAdapter(private val listener: OnItemClickListener) :
+    RecyclerView.Adapter<IssueAdapter.GitHubViewHolder>() {
+
+    interface OnItemClickListener {
+        fun onItemClicked(issueId: Int)
+    }
 
     private val issueList = arrayListOf<Issue>()
 
 
-    fun setItems(newIssueList: List<Issue>){
+    fun setItems(newIssueList: List<Issue>) {
         issueList.clear()
         issueList.addAll(newIssueList)
         notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        GitHubViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.issue_item, parent, false))
+        GitHubViewHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.issue_item, parent, false),
+            listener
+        )
 
     override fun getItemCount() = issueList.size
 
@@ -30,9 +38,13 @@ class IssueAdapter: RecyclerView.Adapter<IssueAdapter.GitHubViewHolder>() {
     }
 
 
-    class GitHubViewHolder(private val view: View): RecyclerView.ViewHolder(view){
+    class GitHubViewHolder(private val view: View, val listener: OnItemClickListener) :
+        RecyclerView.ViewHolder(view) {
         fun onBind(issue: Issue) {
             view.textViewTitle.text = issue.title
+            view.setOnClickListener {
+                listener.onItemClicked(issue.id)
+            }
         }
 
     }

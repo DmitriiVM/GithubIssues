@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.SharedElementCallback
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,7 +24,19 @@ class IssueFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d("mmm", "IssueFragment :  onCreateView --  ")
         return inflater.inflate(R.layout.fragment_issue, container, false)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        viewModel = ViewModelProvider(requireActivity()).get(IssueViewModel::class.java)
+
+        if (savedInstanceState == null){
+            viewModel.fetchIssues()
+        }
+
+        super.onCreate(savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -31,17 +44,15 @@ class IssueFragment : Fragment() {
         setRecyclerView()
         setSwipeRefreshListener()
 
-        viewModel = ViewModelProvider(this).get(IssueViewModel::class.java)
 
-        if (savedInstanceState == null){
-            viewModel.fetchIssues()
-        }
 
+        Log.d("mmm", "IssueFragment :  onViewCreated --  ")
         subscribeObservers()
     }
 
+
     private fun setRecyclerView() {
-        adapter = IssueAdapter()
+        adapter = IssueAdapter(requireActivity() as IssueAdapter.OnItemClickListener)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.hasFixedSize()
         recyclerView.adapter = adapter
