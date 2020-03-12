@@ -46,7 +46,9 @@ class IssueViewModel : ViewModel() {
                 if (response.isSuccessful){
                     _issuesLiveData.postValue(response.body())
                 } else {
-                    _errorLiveData.postValue(response.errorBody().toString())
+                    Log.d("mmm", "IssueViewModel :  onResponse --  ${response.message()}")
+                    Log.d("mmm", "IssueViewModel :  onResponse --  ${response.errorBody().toString()}")
+                    _errorLiveData.postValue(response.message())
                 }
 
 

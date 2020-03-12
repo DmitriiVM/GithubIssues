@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.githubissues.R
 import com.example.githubissues.pojo.Issue
 import kotlinx.android.synthetic.main.fragment_issue.*
+import kotlinx.android.synthetic.main.fragment_issue_detail.*
 
 class IssueDetailFragment : Fragment() {
 
@@ -32,7 +33,6 @@ class IssueDetailFragment : Fragment() {
         issueId = arguments?.getInt(KEY_ISSUE_DETAIL_FRAGMENT)
 
         viewModel = ViewModelProvider(requireActivity()).get(IssueViewModel::class.java)
-        Log.d("mmm", "IssueDetailFragment :  onViewCreated --  ${issueId}")
 
         subscribeObservers()
     }
@@ -42,7 +42,9 @@ class IssueDetailFragment : Fragment() {
 
             issueList.forEach {
                 if (it.id == issueId){
-                    Log.d("mmm", "IssueDetailFragment :  subscribeObservers --  ${it.title}")
+                    textViewNumber.text = it.number.toString()
+                    textViewTitle.text = it.title
+                    textViewBody.text = it.body
                 }
             }
         })

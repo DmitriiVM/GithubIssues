@@ -1,12 +1,12 @@
 package com.example.githubissues.ui
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.SharedElementCallback
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,20 +20,46 @@ class IssueFragment : Fragment() {
     private lateinit var viewModel: IssueViewModel
     private lateinit var adapter: IssueAdapter
 
+    var issueId: Int? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d("mmm", "IssueFragment :  onCreateView --  ")
         return inflater.inflate(R.layout.fragment_issue, container, false)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
+        val isActivityRestored = arguments?.getBoolean(KEY_ISSUE_FRAGMENT)
+        issueId = arguments?.getInt(KEY_ISSUE_ID_FRAGMENT)
+
         viewModel = ViewModelProvider(requireActivity()).get(IssueViewModel::class.java)
 
-        if (savedInstanceState == null){
-            viewModel.fetchIssues()
+
+        if (savedInstanceState == null) {
+            if (isActivityRestored == null) {
+                Log.d("mmm", "IssueFragment :  onCreate --  1")
+                viewModel.fetchIssues()
+            } else {
+                if (!isActivityRestored && issueId != null) {
+                    Log.d("mmm", "IssueFragment :  onCreate --  2")
+                    viewModel.fetchIssues()
+                } else {
+                    Log.d("mmm", "IssueFragment :  onCreate --  3    $issueId")
+                    if (issueId == -1) {
+                        viewModel.fetchIssues()
+                        Log.d("mmm", "IssueFragment :  onCreate --  4")
+                    }
+                }
+            }
+        } else {
+            if (viewModel.issuesLiveData.value == null &&
+                viewModel.loadingLiveData.value == null &&
+                viewModel.errorLiveData.value == null
+            ) {
+                (activity as IssueActivity).addFragments()
+            }
         }
 
         super.onCreate(savedInstanceState)
@@ -44,9 +70,6 @@ class IssueFragment : Fragment() {
         setRecyclerView()
         setSwipeRefreshListener()
 
-
-
-        Log.d("mmm", "IssueFragment :  onViewCreated --  ")
         subscribeObservers()
     }
 
@@ -67,9 +90,14 @@ class IssueFragment : Fragment() {
     private fun subscribeObservers() {
         viewModel.issuesLiveData.observe(viewLifecycleOwner, Observer<List<Issue>> {
             swipeRefreshLayout.isRefreshing = false
-            if (it.isEmpty()){
+            if (it.isEmpty()) {
                 showMessage("Список проблем пуст")
             } else {
+                if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+                    && (issueId == 0)
+                ) {
+                    (activity as IssueActivity).onItemClicked(it[0].id)
+                }
                 adapter.setItems(it)
             }
         })
@@ -82,6 +110,7 @@ class IssueFragment : Fragment() {
         })
     }
 
+
     private fun showMessage(message: String) {
         Snackbar.make(
             view!!,
@@ -89,4 +118,23 @@ class IssueFragment : Fragment() {
             Snackbar.LENGTH_SHORT
         ).show()
     }
+
+    companion object {
+
+        private const val KEY_ISSUE_FRAGMENT = "issue_fragment_key"
+        private const val KEY_ISSUE_ID_FRAGMENT = "issue_detail_fragment_key"
+
+        fun newInstance(id: Int?, isRestored: Boolean): Fragment {
+            val fragment = IssueFragment()
+            fragment.arguments = Bundle().apply {
+                putBoolean(KEY_ISSUE_FRAGMENT, isRestored)
+                id?.let {
+                    putInt(KEY_ISSUE_ID_FRAGMENT, id)
+                }
+            }
+            return fragment
+        }
+    }
+
+
 }
