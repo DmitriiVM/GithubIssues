@@ -2,13 +2,13 @@ package com.example.githubissues.ui
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.githubissues.R
 import com.example.githubissues.pojo.Issue
@@ -36,22 +36,9 @@ class IssueFragment : Fragment() {
 
         viewModel = ViewModelProvider(requireActivity()).get(IssueViewModel::class.java)
 
-//        Log.d("mmm", "IssueFragment :  onCreate --  +++++++++++++++++++++++++++++++++++++++++")
         if (savedInstanceState == null) {
-            if (isActivityRestored == null) {
-//                Log.d("mmm", "IssueFragment :  onCreate --  1")
+            if (isActivityRestored != null && !isActivityRestored) {
                 viewModel.fetchIssues()
-            } else {
-                if (!isActivityRestored && issueId != null) {
-//                    Log.d("mmm", "IssueFragment :  onCreate --  2")
-                    viewModel.fetchIssues()
-                } else {
-//                    Log.d("mmm", "IssueFragment :  onCreate --  3    $issueId")
-                    if (issueId == -1) {
-                        viewModel.fetchIssues()
-//                        Log.d("mmm", "IssueFragment :  onCreate --  4")
-                    }
-                }
             }
         } else {
             if (viewModel.issuesLiveData.value == null &&
@@ -61,32 +48,29 @@ class IssueFragment : Fragment() {
                 (activity as IssueActivity).addFragments()
             }
         }
-
         super.onCreate(savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-
-
         val selectedPosition = arguments?.getInt(KEY_SELECTED_POSITION)
-        Log.d("mmm", "IssueFragment :  onViewCreated --  $selectedPosition")
 
-        setRecyclerView(selectedPosition ?: -1)
+        setRecyclerView(selectedPosition ?: 0)
         setSwipeRefreshListener()
-
         subscribeObservers()
     }
 
 
     private fun setRecyclerView(selectedPosition: Int) {
-//        Log.d("mmm", "IssueFragment :  setRecyclerView --  $selectedPosition")
-        adapter = IssueAdapter(requireActivity() as IssueAdapter.OnItemClickListener, selectedPosition)
-//        adapter = IssueAdapter(requireActivity() as IssueAdapter.OnItemClickListener, selectedPosition)
+        adapter =
+            IssueAdapter(requireActivity() as IssueAdapter.OnItemClickListener, selectedPosition)
+
+        recyclerView.addItemDecoration(
+            DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
+        )
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.hasFixedSize()
         recyclerView.adapter = adapter
-
     }
 
     private fun setSwipeRefreshListener() {
@@ -99,10 +83,10 @@ class IssueFragment : Fragment() {
         viewModel.issuesLiveData.observe(viewLifecycleOwner, Observer<List<Issue>> {
             swipeRefreshLayout.isRefreshing = false
             if (it.isEmpty()) {
-                showMessage("Список проблем пуст")
+                showMessage(getString(R.string.message_empty_list))
             } else {
                 if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-                    && (issueId == 0)
+                    && issueId == 0
                 ) {
                     (activity as IssueActivity).onItemClicked(it[0].id, 0)
                 }
@@ -118,29 +102,16 @@ class IssueFragment : Fragment() {
         })
     }
 
-
     private fun showMessage(message: String) {
-        Snackbar.make(
-            view!!,
-            message,
-            Snackbar.LENGTH_SHORT
-        ).show()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-//        adapter.selectedPosition.let {
-
-//            outState.putInt(KEY_SELECTED_POSITION, adapter.selectedPosition)
-//        }
-//        Log.d("mmm", "IssueFragment :  onSaveInstanceState --  ${adapter.selectedPosition}")
-        super.onSaveInstanceState(outState)
+        view?.let {
+            Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show()
+        }
     }
 
     companion object {
 
         private const val KEY_ISSUE_FRAGMENT = "issue_fragment_key"
         private const val KEY_ISSUE_ID_FRAGMENT = "issue_detail_fragment_key"
-
         private const val KEY_SELECTED_POSITION = "selected_position"
 
         fun newInstance(id: Int?, isRestored: Boolean, selectedPosition: Int): Fragment {
@@ -155,6 +126,4 @@ class IssueFragment : Fragment() {
             return fragment
         }
     }
-
-
 }

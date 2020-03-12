@@ -13,6 +13,4 @@ object GitHubApiService {
         .build()
 
     fun gitHubApiService() = getRetrofit().create(GithubApi::class.java)
-
-
 }

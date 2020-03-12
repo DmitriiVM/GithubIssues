@@ -4,16 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/darker_gray"
     tools:context=".ui.IssueActivity">
-
 
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:background="@android:color/white"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent">
-
     </FrameLayout>
 
     <FrameLayout
@@ -21,8 +21,9 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:background="@android:color/white"
+        android:layout_margin="2dp"
         app:layout_constraintStart_toStartOf="@+id/guideline">
-
     </FrameLayout>
 
     <androidx.constraintlayout.widget.Guideline
@@ -31,6 +32,4 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

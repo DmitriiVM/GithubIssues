@@ -3,4 +3,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="number">Номер:</string>
+    <string name="name">Название:</string>
+    <string name="description">Описание:</string>
+    <string name="message_empty_list">Список проблем пуст</string>
 </resources>
