@@ -11,6 +11,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
     private var issueId: Int? = null
     private var isRestored = false
     private var isDetailFragmentOpen = false
+    private var selectedPosition: Int = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +24,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
         } else {
             isRestored = true
             issueId = savedInstanceState.getInt(KEY_ISSUE_ID)
+            selectedPosition = savedInstanceState.getInt(KEY_SELECTED_POSITION)
             isDetailFragmentOpen = savedInstanceState.getBoolean(KEY_IS_DETAIL_FRAGMENT_OPEN)
             addFragments()
         }
@@ -41,30 +43,46 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
         issueId?.let {
             id = it
         }
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, IssueFragment.newInstance(id, isRestored))
-            .commit()
+//        Log.d("mmm", "IssueActivity :  addIssueListFragment --  $selectedPosition")
+//        if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is IssueFragment) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, IssueFragment.newInstance(id, isRestored, selectedPosition))
+                .commit()
+//        }
     }
 
-    override fun onItemClicked(id: Int) {
+    override fun onItemClicked(id: Int, selectedPosition: Int) {
         issueId = id
+        this.selectedPosition = selectedPosition
+//        Log.d("mmm", "IssueActivity :  onItemClicked --  $id")
         addDetailFragment()
     }
 
     private fun addDetailFragment() {
-        issueId?.let{
+        issueId?.let {
 
-            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT){
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 isDetailFragmentOpen = true
-                supportActionBar?.setDisplayHomeAsUpEnabled(true)
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmentContainer, IssueDetailFragment.newInstance(it))
-                    .addToBackStack("test")
-                    .commit()
+                val displayHomeAsUpEnabled = supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+                if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is IssueDetailFragment) {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, IssueDetailFragment.newInstance(it))
+                        .addToBackStack("test")
+                        .commit()
+                } else {
+
+                }
+
             } else {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmentContainerDetail, IssueDetailFragment.newInstance(it))
-                    .commit()
+//                if (supportFragmentManager.findFragmentById(R.id.fragmentContainerDetail) !is IssueDetailFragment){
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainerDetail, IssueDetailFragment.newInstance(it))
+                        .commit()
+//                } else {
+//
+//                }
+
             }
         }
 
@@ -76,6 +94,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
             outState.putInt(KEY_ISSUE_ID, issueId!!)
         }
         outState.putBoolean(KEY_IS_DETAIL_FRAGMENT_OPEN, isDetailFragmentOpen)
+        outState.putInt(KEY_SELECTED_POSITION, selectedPosition)
         super.onSaveInstanceState(outState)
     }
 
@@ -88,6 +107,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
     override fun onBackPressed() {
         issueId = null
         isDetailFragmentOpen = false
+        selectedPosition = 0
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         super.onBackPressed()
     }
@@ -95,5 +115,8 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
     companion object {
         private const val KEY_ISSUE_ID = "key_issue_id"
         private const val KEY_IS_DETAIL_FRAGMENT_OPEN = "key_is_detail_fragment_open"
+
+
+        private const val KEY_SELECTED_POSITION = "key_selected_position"
     }
 }

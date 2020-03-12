@@ -36,20 +36,20 @@ class IssueFragment : Fragment() {
 
         viewModel = ViewModelProvider(requireActivity()).get(IssueViewModel::class.java)
 
-
+//        Log.d("mmm", "IssueFragment :  onCreate --  +++++++++++++++++++++++++++++++++++++++++")
         if (savedInstanceState == null) {
             if (isActivityRestored == null) {
-                Log.d("mmm", "IssueFragment :  onCreate --  1")
+//                Log.d("mmm", "IssueFragment :  onCreate --  1")
                 viewModel.fetchIssues()
             } else {
                 if (!isActivityRestored && issueId != null) {
-                    Log.d("mmm", "IssueFragment :  onCreate --  2")
+//                    Log.d("mmm", "IssueFragment :  onCreate --  2")
                     viewModel.fetchIssues()
                 } else {
-                    Log.d("mmm", "IssueFragment :  onCreate --  3    $issueId")
+//                    Log.d("mmm", "IssueFragment :  onCreate --  3    $issueId")
                     if (issueId == -1) {
                         viewModel.fetchIssues()
-                        Log.d("mmm", "IssueFragment :  onCreate --  4")
+//                        Log.d("mmm", "IssueFragment :  onCreate --  4")
                     }
                 }
             }
@@ -67,18 +67,26 @@ class IssueFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        setRecyclerView()
+
+
+        val selectedPosition = arguments?.getInt(KEY_SELECTED_POSITION)
+        Log.d("mmm", "IssueFragment :  onViewCreated --  $selectedPosition")
+
+        setRecyclerView(selectedPosition ?: -1)
         setSwipeRefreshListener()
 
         subscribeObservers()
     }
 
 
-    private fun setRecyclerView() {
-        adapter = IssueAdapter(requireActivity() as IssueAdapter.OnItemClickListener)
+    private fun setRecyclerView(selectedPosition: Int) {
+//        Log.d("mmm", "IssueFragment :  setRecyclerView --  $selectedPosition")
+        adapter = IssueAdapter(requireActivity() as IssueAdapter.OnItemClickListener, selectedPosition)
+//        adapter = IssueAdapter(requireActivity() as IssueAdapter.OnItemClickListener, selectedPosition)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.hasFixedSize()
         recyclerView.adapter = adapter
+
     }
 
     private fun setSwipeRefreshListener() {
@@ -96,7 +104,7 @@ class IssueFragment : Fragment() {
                 if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
                     && (issueId == 0)
                 ) {
-                    (activity as IssueActivity).onItemClicked(it[0].id)
+                    (activity as IssueActivity).onItemClicked(it[0].id, 0)
                 }
                 adapter.setItems(it)
             }
@@ -119,15 +127,27 @@ class IssueFragment : Fragment() {
         ).show()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+//        adapter.selectedPosition.let {
+
+//            outState.putInt(KEY_SELECTED_POSITION, adapter.selectedPosition)
+//        }
+//        Log.d("mmm", "IssueFragment :  onSaveInstanceState --  ${adapter.selectedPosition}")
+        super.onSaveInstanceState(outState)
+    }
+
     companion object {
 
         private const val KEY_ISSUE_FRAGMENT = "issue_fragment_key"
         private const val KEY_ISSUE_ID_FRAGMENT = "issue_detail_fragment_key"
 
-        fun newInstance(id: Int?, isRestored: Boolean): Fragment {
+        private const val KEY_SELECTED_POSITION = "selected_position"
+
+        fun newInstance(id: Int?, isRestored: Boolean, selectedPosition: Int): Fragment {
             val fragment = IssueFragment()
             fragment.arguments = Bundle().apply {
                 putBoolean(KEY_ISSUE_FRAGMENT, isRestored)
+                putInt(KEY_SELECTED_POSITION, selectedPosition)
                 id?.let {
                     putInt(KEY_ISSUE_ID_FRAGMENT, id)
                 }

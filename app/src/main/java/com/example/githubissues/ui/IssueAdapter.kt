@@ -1,5 +1,6 @@
 package com.example.githubissues.ui
 
+import android.content.res.Configuration
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,11 +9,17 @@ import com.example.githubissues.R
 import com.example.githubissues.pojo.Issue
 import kotlinx.android.synthetic.main.issue_item.view.*
 
-class IssueAdapter(private val listener: OnItemClickListener) :
+class IssueAdapter(
+    private val listener: OnItemClickListener
+    ,
+    var selectedPosition: Int?
+) :
     RecyclerView.Adapter<IssueAdapter.GitHubViewHolder>() {
 
+//    private var selectedPosition: Int? = null
+
     interface OnItemClickListener {
-        fun onItemClicked(issueId: Int)
+        fun onItemClicked(issueId: Int, selectedPosition: Int)
     }
 
     private val issueList = arrayListOf<Issue>()
@@ -24,6 +31,7 @@ class IssueAdapter(private val listener: OnItemClickListener) :
         notifyDataSetChanged()
     }
 
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         GitHubViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.issue_item, parent, false),
@@ -33,17 +41,45 @@ class IssueAdapter(private val listener: OnItemClickListener) :
     override fun getItemCount() = issueList.size
 
     override fun onBindViewHolder(holder: GitHubViewHolder, position: Int) {
+//        Log.d("mmm", "IssueAdapter :  onBindViewHolder --  $selectedPosition")
+        if (holder.itemView.context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//
+            if (selectedPosition == position) {
+                holder.itemView.isSelected = true
+//                selectedPosition = 0
+            } else {
+                holder.itemView.isSelected = false
+            }
+//
+        }
+
+
         val issue = issueList[position]
         holder.onBind(issue)
     }
 
 
-    class GitHubViewHolder(private val view: View, val listener: OnItemClickListener) :
+    inner class GitHubViewHolder(private val view: View, val listener: OnItemClickListener) :
         RecyclerView.ViewHolder(view) {
+
+
         fun onBind(issue: Issue) {
+
+
             view.textViewTitle.text = issue.title
             view.setOnClickListener {
-                listener.onItemClicked(issue.id)
+
+                selectedPosition?.let {
+                    notifyItemChanged(it)
+                }
+
+
+                selectedPosition = adapterPosition
+//                view.isSelected = true
+                notifyItemChanged(adapterPosition)
+
+                listener.onItemClicked(issue.id, adapterPosition)
+
             }
         }
 
