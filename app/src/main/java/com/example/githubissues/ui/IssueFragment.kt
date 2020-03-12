@@ -2,6 +2,7 @@ package com.example.githubissues.ui
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -80,17 +81,18 @@ class IssueFragment : Fragment() {
     }
 
     private fun subscribeObservers() {
-        viewModel.issuesLiveData.observe(viewLifecycleOwner, Observer<List<Issue>> {
+        viewModel.issuesLiveData.observe(viewLifecycleOwner, Observer<List<Issue>> {issueList ->
             swipeRefreshLayout.isRefreshing = false
-            if (it.isEmpty()) {
+            if (issueList.isEmpty()) {
                 showMessage(getString(R.string.message_empty_list))
             } else {
                 if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
                     && issueId == 0
                 ) {
-                    (activity as IssueActivity).onItemClicked(it[0].id, 0)
+                    (activity as IssueActivity).onItemClicked(issueList[0].id, 0)
                 }
-                adapter.setItems(it)
+                issueList.filter { it.state == "open" }
+                adapter.setItems(issueList)
             }
         })
         viewModel.loadingLiveData.observe(viewLifecycleOwner, Observer<Boolean> {
