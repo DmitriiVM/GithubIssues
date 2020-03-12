@@ -83,6 +83,7 @@ class IssueFragment : Fragment() {
     private fun subscribeObservers() {
         viewModel.issuesLiveData.observe(viewLifecycleOwner, Observer<List<Issue>> {issueList ->
             swipeRefreshLayout.isRefreshing = false
+            issueList.filter { it.state == "open" }
             if (issueList.isEmpty()) {
                 showMessage(getString(R.string.message_empty_list))
             } else {
@@ -91,7 +92,6 @@ class IssueFragment : Fragment() {
                 ) {
                     (activity as IssueActivity).onItemClicked(issueList[0].id, 0)
                 }
-                issueList.filter { it.state == "open" }
                 adapter.setItems(issueList)
             }
         })
