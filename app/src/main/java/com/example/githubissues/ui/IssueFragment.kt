@@ -21,12 +21,12 @@ class IssueFragment : Fragment() {
 
     private lateinit var viewModel: IssueViewModel
     private lateinit var adapter: IssueAdapter
-
     private var page: Int = 1
     private lateinit var layoutManager: LinearLayoutManager
     private var isLoading = false
-
     var issueId: Int? = null
+    private lateinit var onAfterProcessDeathListener: OnAfterProcessDeathListener
+    private lateinit var onFirstLoadListener: OnFirstLoadListener
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,7 +52,7 @@ class IssueFragment : Fragment() {
                 viewModel.loadingLiveData.value == null &&
                 viewModel.errorLiveData.value == null
             ) {
-                (activity as IssueActivity).addFragments()
+                onAfterProcessDeathListener.onAfterProcessDeath()
             }
         }
         super.onCreate(savedInstanceState)
@@ -66,7 +66,6 @@ class IssueFragment : Fragment() {
         setSwipeRefreshListener()
         subscribeObservers()
     }
-
 
     private fun setRecyclerView(selectedPosition: Int) {
         adapter =
@@ -119,7 +118,8 @@ class IssueFragment : Fragment() {
                 if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
                     && issueId == 0
                 ) {
-                    (activity as IssueActivity).onItemClicked(issueList[0].id, 0)
+                    onFirstLoadListener.onFirstLoad(issueList[0].id)
+//                    (activity as IssueActivity).onItemClicked(issueList[0].id, 0)
                 }
                 adapter.addItems(issueList)
                 isLoading = false
@@ -159,5 +159,21 @@ class IssueFragment : Fragment() {
             }
             return fragment
         }
+    }
+
+    fun setOnFirstLoadListener(onFirstLoadListener: OnFirstLoadListener) {
+        this.onFirstLoadListener = onFirstLoadListener
+    }
+
+    fun setonAfterProcessDeathListener(onAfterProcessDeathListener: OnAfterProcessDeathListener) {
+        this.onAfterProcessDeathListener = onAfterProcessDeathListener
+    }
+
+    interface OnFirstLoadListener {
+        fun onFirstLoad(issueId: Int)
+    }
+
+    interface OnAfterProcessDeathListener {
+        fun onAfterProcessDeath()
     }
 }

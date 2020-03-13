@@ -3,9 +3,11 @@ package com.example.githubissues.ui
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import com.example.githubissues.R
 
-class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
+class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
+    IssueFragment.OnFirstLoadListener, IssueFragment.OnAfterProcessDeathListener {
 
     private var issueId: Int? = null
     private var isRestored = false
@@ -97,6 +99,21 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
         selectedPosition = 0
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         super.onBackPressed()
+    }
+
+    override fun onAttachFragment(fragment: Fragment) {
+        if (fragment is IssueFragment) {
+            fragment.setOnFirstLoadListener(this)
+            fragment.setonAfterProcessDeathListener(this)
+        }
+    }
+
+    override fun onFirstLoad(issueId: Int) {
+        onItemClicked(issueId, 0)
+    }
+
+    override fun onAfterProcessDeath() {
+        addFragments()
     }
 
     companion object {
