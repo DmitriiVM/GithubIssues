@@ -113,7 +113,7 @@ class IssueFragment : Fragment() {
 
             swipeRefreshLayout.isRefreshing = false
             issueList.filter { it.state == "open" }
-            if (issueList.isEmpty()) {
+            if (page == 1 && issueList.isEmpty()) {
                 showMessage(getString(R.string.message_empty_list))
             } else {
                 if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
