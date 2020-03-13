@@ -1,6 +1,7 @@
 package com.example.githubissues.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.githubissues.R
@@ -26,6 +27,8 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
     // выделенная позиция recycleView
     private var selectedPosition = 0
 
+    private var isFirstLoad = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_issue)
@@ -37,6 +40,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
             issueId = savedInstanceState.getInt(KEY_ISSUE_ID)
             selectedPosition = savedInstanceState.getInt(KEY_SELECTED_POSITION)
             isDetailFragmentOpen = savedInstanceState.getBoolean(KEY_IS_DETAIL_FRAGMENT_OPEN)
+            isFirstLoad = savedInstanceState.getBoolean(KEY_FIRST_LOAD)
             addFragments()
         }
     }
@@ -123,7 +127,10 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
 
     // если я приложение запускаю в landscape mode, то хочу загрузить детали первого элемента после загрузки данных
     override fun onFirstLoad(issueId: Int) {
-        onItemClicked(issueId, 0)
+        if (isFirstLoad){
+            onItemClicked(issueId, 0)
+        }
+        isFirstLoad = false
     }
 
     override fun onAfterProcessDeath() {
@@ -135,5 +142,6 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
         private const val KEY_ISSUE_ID = "key_issue_id"
         private const val KEY_IS_DETAIL_FRAGMENT_OPEN = "key_is_detail_fragment_open"
         private const val KEY_SELECTED_POSITION = "key_selected_position_activity"
+        private const val KEY_FIRST_LOAD = "key_first_load"
     }
 }

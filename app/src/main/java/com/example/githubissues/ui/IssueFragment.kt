@@ -25,7 +25,7 @@ class IssueFragment : Fragment(), IssueAdapter.OnItemClickListener {
     private var page: Int = 1
     private lateinit var layoutManager: LinearLayoutManager
     private var isLoading = false
-    var issueId: Int? = null
+    private var issueId: Int? = null
     private var selectedPosition = 0
     private lateinit var onAfterProcessDeathListener: OnAfterProcessDeathListener
     private lateinit var onFirstLoadListener: OnFirstLoadListener
@@ -40,7 +40,7 @@ class IssueFragment : Fragment(), IssueAdapter.OnItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         val isActivityRestored = arguments?.getBoolean(KEY_ISSUE_FRAGMENT)
-        issueId = arguments?.getInt(KEY_ISSUE_ID_FRAGMENT)
+        issueId = arguments?.getInt(KEY_ISSUE_ID_FRAGMENT, -1)
 
         viewModel = ViewModelProvider(requireActivity()).get(IssueViewModel::class.java)
 
@@ -125,8 +125,9 @@ class IssueFragment : Fragment(), IssueAdapter.OnItemClickListener {
             } else {
                 // если приложение запускаю в landscape mode, то хочу загрузить детали первого элемента
                 if (requireActivity().fragmentContainerDetail != null
-                    && issueId == 0
+//                    && issueId == -1
                 ) {
+                    Log.d("mmm", "IssueFragment :  subscribeObservers --  ")
                     onFirstLoadListener.onFirstLoad(issueList[0].id)
                 }
                 adapter.addItems(issueList)
