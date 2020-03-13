@@ -55,9 +55,14 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
 
                 isDetailFragmentOpen = true
                 supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
                 if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is IssueDetailFragment) {
                     supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(
+                            R.anim.enter_from_right_to_left,
+                            R.anim.exit_from_right_to_left,
+                            R.anim.enter_from_left_to_right,
+                            R.anim.exit_from_left_ti_right
+                        )
                         .replace(R.id.fragmentContainer, IssueDetailFragment.newInstance(it))
                         .addToBackStack(null)
                         .commit()
