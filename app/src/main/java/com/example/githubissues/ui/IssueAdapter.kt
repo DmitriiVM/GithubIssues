@@ -20,10 +20,13 @@ class IssueAdapter(
 
     private val issueList = arrayListOf<Issue>()
 
-    fun setItems(newIssueList: List<Issue>) {
-        issueList.clear()
+    fun addItems(newIssueList: List<Issue>) {
         issueList.addAll(newIssueList)
         notifyDataSetChanged()
+    }
+
+    fun clearItems(){
+        issueList.clear()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
