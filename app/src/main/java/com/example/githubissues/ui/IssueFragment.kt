@@ -1,12 +1,11 @@
 package com.example.githubissues.ui
 
-import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -18,7 +17,8 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_issue.*
 import kotlinx.android.synthetic.main.fragment_issue.*
 
-class IssueFragment : Fragment() {
+class IssueFragment : Fragment(), IssueAdapter.OnItemClickListener {
+
 
     private lateinit var viewModel: IssueViewModel
     private lateinit var adapter: IssueAdapter
@@ -26,6 +26,7 @@ class IssueFragment : Fragment() {
     private lateinit var layoutManager: LinearLayoutManager
     private var isLoading = false
     var issueId: Int? = null
+    private var selectedPosition = 0
     private lateinit var onAfterProcessDeathListener: OnAfterProcessDeathListener
     private lateinit var onFirstLoadListener: OnFirstLoadListener
 
@@ -61,16 +62,23 @@ class IssueFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        val selectedPosition = arguments?.getInt(KEY_SELECTED_POSITION)
+        selectedPosition = if (savedInstanceState?.getInt(KEY_SELECTED_POSITION) != null) {
+            savedInstanceState.getInt(KEY_SELECTED_POSITION)
+        } else {
+            arguments?.getInt(KEY_SELECTED_POSITION) ?: 0
+        }
 
-        setRecyclerView(selectedPosition ?: 0)
+        setRecyclerView(selectedPosition)
         setSwipeRefreshListener()
         subscribeObservers()
     }
 
     private fun setRecyclerView(selectedPosition: Int) {
-        adapter =
-            IssueAdapter(requireActivity() as IssueAdapter.OnItemClickListener, selectedPosition)
+        adapter = IssueAdapter(selectedPosition)
+        if (requireActivity() is IssueAdapter.OnItemClickListener) {
+            adapter.addListener(requireActivity() as IssueAdapter.OnItemClickListener)
+        }
+        adapter.addListener(this)
 
         recyclerView.addItemDecoration(
             DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
@@ -111,11 +119,11 @@ class IssueFragment : Fragment() {
     private fun subscribeObservers() {
         viewModel.issuesLiveData.observe(viewLifecycleOwner, Observer<List<Issue>> { issueList ->
 
-            swipeRefreshLayout.isRefreshing = false
             issueList.filter { it.state == "open" }
             if (page == 1 && issueList.isEmpty()) {
                 showMessage(getString(R.string.message_empty_list))
             } else {
+                // если приложение запускаю в landscape mode, то хочу загрузить детали первого элемента
                 if (requireActivity().fragmentContainerDetail != null
                     && issueId == 0
                 ) {
@@ -130,7 +138,6 @@ class IssueFragment : Fragment() {
         })
         viewModel.errorLiveData.observe(viewLifecycleOwner, Observer<String> {
             isLoading = false
-            swipeRefreshLayout.isRefreshing = false
             showMessage(it)
         })
     }
@@ -165,7 +172,7 @@ class IssueFragment : Fragment() {
         this.onFirstLoadListener = onFirstLoadListener
     }
 
-    fun setonAfterProcessDeathListener(onAfterProcessDeathListener: OnAfterProcessDeathListener) {
+    fun setOnAfterProcessDeathListener(onAfterProcessDeathListener: OnAfterProcessDeathListener) {
         this.onAfterProcessDeathListener = onAfterProcessDeathListener
     }
 
@@ -175,5 +182,14 @@ class IssueFragment : Fragment() {
 
     interface OnAfterProcessDeathListener {
         fun onAfterProcessDeath()
+    }
+
+    override fun onItemClicked(issueId: Int, selectedPosition: Int) {
+        this.selectedPosition = selectedPosition
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(KEY_SELECTED_POSITION, selectedPosition)
+        super.onSaveInstanceState(outState)
     }
 }

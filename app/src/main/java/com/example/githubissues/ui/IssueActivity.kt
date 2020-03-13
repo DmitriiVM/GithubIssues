@@ -1,8 +1,7 @@
 package com.example.githubissues.ui
 
-import android.content.res.Configuration
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.githubissues.R
 import kotlinx.android.synthetic.main.activity_issue.*
@@ -10,10 +9,22 @@ import kotlinx.android.synthetic.main.activity_issue.*
 class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
     IssueFragment.OnFirstLoadListener, IssueFragment.OnAfterProcessDeathListener {
 
-    private var issueId: Int? = null
+    private var issueId : Int? = null
+
+    // эту переменную я передаю в фрагмент вот почему - если в портретном режиме, находясь во фрагменте с деталями, я переверну экран,
+    // после поворота в этот контейнер мне нужно будет загрузить фрагмент со списком issue.
+    // При этом saveInstanceState у нового фрагмента будет равен null. А я каким-то образом хочу понять,
+    // нужно ли мне грузить данные с интернета снова, или нет. Поэтому проверяю, восттановлено ли состояние или нет через активити
     private var isRestored = false
+
+    // после смери процесса хочу грузануть данные снова
+    private var isAfterProcessDeath = false
+
+    // нужно затем, что, если я в портретном режиме открою фрагмент с деталями,
+    // потом переверну в лендскейп, потом обратно, открылся бы снова фрагмент с деталями
     private var isDetailFragmentOpen = false
-    private var selectedPosition: Int = 0
+    // выделенная позиция recycleView
+    private var selectedPosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,12 +49,14 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
     }
 
     private fun addIssueListFragment() {
-        supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.fragmentContainer,
-                IssueFragment.newInstance(issueId, isRestored, selectedPosition)
-            )
-            .commit()
+        if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is IssueFragment || isAfterProcessDeath) {
+            supportFragmentManager.beginTransaction()
+                .replace(
+                    R.id.fragmentContainer,
+                    IssueFragment.newInstance(issueId, isRestored, selectedPosition)
+                )
+                .commit()
+        }
     }
 
     override fun onItemClicked(issueId: Int, selectedPosition: Int) {
@@ -95,7 +108,6 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
     }
 
     override fun onBackPressed() {
-        issueId = null
         isDetailFragmentOpen = false
         selectedPosition = 0
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
@@ -105,21 +117,23 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
     override fun onAttachFragment(fragment: Fragment) {
         if (fragment is IssueFragment) {
             fragment.setOnFirstLoadListener(this)
-            fragment.setonAfterProcessDeathListener(this)
+            fragment.setOnAfterProcessDeathListener(this)
         }
     }
 
+    // если я приложение запускаю в landscape mode, то хочу загрузить детали первого элемента после загрузки данных
     override fun onFirstLoad(issueId: Int) {
         onItemClicked(issueId, 0)
     }
 
     override fun onAfterProcessDeath() {
+        isAfterProcessDeath = true
         addFragments()
     }
 
     companion object {
         private const val KEY_ISSUE_ID = "key_issue_id"
         private const val KEY_IS_DETAIL_FRAGMENT_OPEN = "key_is_detail_fragment_open"
-        private const val KEY_SELECTED_POSITION = "key_selected_position"
+        private const val KEY_SELECTED_POSITION = "key_selected_position_activity"
     }
 }

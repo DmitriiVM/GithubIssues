@@ -10,7 +10,7 @@ import com.example.githubissues.pojo.Issue
 import kotlinx.android.synthetic.main.issue_item.view.*
 
 class IssueAdapter(
-    private val listener: OnItemClickListener,
+//    private val listener: OnItemClickListener,
     var selectedPosition: Int
 ) : RecyclerView.Adapter<IssueAdapter.GitHubViewHolder>() {
 
@@ -18,7 +18,15 @@ class IssueAdapter(
         fun onItemClicked(issueId: Int, selectedPosition: Int)
     }
 
+
+
     private val issueList = arrayListOf<Issue>()
+
+    private val listeners = arrayListOf<OnItemClickListener>()
+
+    fun addListener(onItemClickListener: OnItemClickListener){
+        listeners.add(onItemClickListener)
+    }
 
     fun addItems(newIssueList: List<Issue>) {
         issueList.addAll(newIssueList)
@@ -31,8 +39,9 @@ class IssueAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         GitHubViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.issue_item, parent, false),
-            listener
+            LayoutInflater.from(parent.context).inflate(R.layout.issue_item, parent, false)
+//            ,
+//            listener
         )
 
     override fun getItemCount() = issueList.size
@@ -47,8 +56,9 @@ class IssueAdapter(
     }
 
     inner class GitHubViewHolder(
-        private val view: View,
-        private val listener: OnItemClickListener
+        private val view: View
+//        ,
+//        private val listener: OnItemClickListener
     ) :
         RecyclerView.ViewHolder(view) {
 
@@ -62,7 +72,10 @@ class IssueAdapter(
                 selectedPosition = adapterPosition
                 notifyItemChanged(adapterPosition)
 
-                listener.onItemClicked(issue.id, adapterPosition)
+//                listener.onItemClicked(issue.id, adapterPosition)
+                listeners.forEach {
+                    it.onItemClicked(issue.id, adapterPosition)
+                }
             }
         }
     }
