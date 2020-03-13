@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.example.githubissues.R
+import kotlinx.android.synthetic.main.activity_issue.*
 
 class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
     IssueFragment.OnFirstLoadListener, IssueFragment.OnAfterProcessDeathListener {
@@ -29,9 +30,9 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
         }
     }
 
-    fun addFragments() {
+    private fun addFragments() {
         addIssueListFragment()
-        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE || isDetailFragmentOpen) {
+        if (fragmentContainerDetail != null || isDetailFragmentOpen) {
             addDetailFragment()
         }
     }
@@ -53,7 +54,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
 
     private fun addDetailFragment() {
         issueId?.let {
-            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if (fragmentContainerDetail == null) {
 
                 isDetailFragmentOpen = true
                 supportActionBar?.setDisplayHomeAsUpEnabled(true)

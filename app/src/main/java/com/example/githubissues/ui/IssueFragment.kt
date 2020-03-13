@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.githubissues.R
 import com.example.githubissues.pojo.Issue
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.activity_issue.*
 import kotlinx.android.synthetic.main.fragment_issue.*
 
 class IssueFragment : Fragment() {
@@ -115,11 +116,10 @@ class IssueFragment : Fragment() {
             if (page == 1 && issueList.isEmpty()) {
                 showMessage(getString(R.string.message_empty_list))
             } else {
-                if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+                if (requireActivity().fragmentContainerDetail != null
                     && issueId == 0
                 ) {
                     onFirstLoadListener.onFirstLoad(issueList[0].id)
-//                    (activity as IssueActivity).onItemClicked(issueList[0].id, 0)
                 }
                 adapter.addItems(issueList)
                 isLoading = false
