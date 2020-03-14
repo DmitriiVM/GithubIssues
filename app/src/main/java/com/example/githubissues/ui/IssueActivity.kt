@@ -40,7 +40,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
             issueId = savedInstanceState.getInt(KEY_ISSUE_ID)
             selectedPosition = savedInstanceState.getInt(KEY_SELECTED_POSITION)
             isDetailFragmentOpen = savedInstanceState.getBoolean(KEY_IS_DETAIL_FRAGMENT_OPEN)
-            isFirstLoad = savedInstanceState.getBoolean(KEY_FIRST_LOAD)
+            isFirstLoad = savedInstanceState.getBoolean(KEY_FIRST_LOAD, true)
             addFragments()
         }
     }
@@ -57,7 +57,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
             supportFragmentManager.beginTransaction()
                 .replace(
                     R.id.fragmentContainer,
-                    IssueFragment.newInstance(issueId, isRestored, selectedPosition)
+                    IssueFragment.newInstance(isRestored, selectedPosition)
                 )
                 .commit()
         }
@@ -103,6 +103,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
         }
         outState.putBoolean(KEY_IS_DETAIL_FRAGMENT_OPEN, isDetailFragmentOpen)
         outState.putInt(KEY_SELECTED_POSITION, selectedPosition)
+        outState.putBoolean(KEY_FIRST_LOAD, isFirstLoad)
         super.onSaveInstanceState(outState)
     }
 
@@ -113,7 +114,6 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
 
     override fun onBackPressed() {
         isDetailFragmentOpen = false
-        selectedPosition = 0
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         super.onBackPressed()
     }

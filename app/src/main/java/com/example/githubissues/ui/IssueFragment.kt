@@ -1,7 +1,6 @@
 package com.example.githubissues.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +24,6 @@ class IssueFragment : Fragment(), IssueAdapter.OnItemClickListener {
     private var page: Int = 1
     private lateinit var layoutManager: LinearLayoutManager
     private var isLoading = false
-    private var issueId: Int? = null
     private var selectedPosition = 0
     private lateinit var onAfterProcessDeathListener: OnAfterProcessDeathListener
     private lateinit var onFirstLoadListener: OnFirstLoadListener
@@ -40,7 +38,6 @@ class IssueFragment : Fragment(), IssueAdapter.OnItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         val isActivityRestored = arguments?.getBoolean(KEY_ISSUE_FRAGMENT)
-        issueId = arguments?.getInt(KEY_ISSUE_ID_FRAGMENT, -1)
 
         viewModel = ViewModelProvider(requireActivity()).get(IssueViewModel::class.java)
 
@@ -64,6 +61,7 @@ class IssueFragment : Fragment(), IssueAdapter.OnItemClickListener {
 
         selectedPosition = if (savedInstanceState?.getInt(KEY_SELECTED_POSITION) != null) {
             savedInstanceState.getInt(KEY_SELECTED_POSITION)
+
         } else {
             arguments?.getInt(KEY_SELECTED_POSITION) ?: 0
         }
@@ -124,10 +122,7 @@ class IssueFragment : Fragment(), IssueAdapter.OnItemClickListener {
                 showMessage(getString(R.string.message_empty_list))
             } else {
                 // если приложение запускаю в landscape mode, то хочу загрузить детали первого элемента
-                if (requireActivity().fragmentContainerDetail != null
-//                    && issueId == -1
-                ) {
-                    Log.d("mmm", "IssueFragment :  subscribeObservers --  ")
+                if (requireActivity().fragmentContainerDetail != null) {
                     onFirstLoadListener.onFirstLoad(issueList[0].id)
                 }
                 adapter.addItems(issueList)
@@ -152,18 +147,14 @@ class IssueFragment : Fragment(), IssueAdapter.OnItemClickListener {
     companion object {
 
         private const val KEY_ISSUE_FRAGMENT = "issue_fragment_key"
-        private const val KEY_ISSUE_ID_FRAGMENT = "issue_detail_fragment_key"
         private const val KEY_SELECTED_POSITION = "selected_position"
         private const val START_PAGE = "1"
 
-        fun newInstance(id: Int?, isRestored: Boolean, selectedPosition: Int): Fragment {
+        fun newInstance(isRestored: Boolean, selectedPosition: Int): Fragment {
             val fragment = IssueFragment()
             fragment.arguments = Bundle().apply {
                 putBoolean(KEY_ISSUE_FRAGMENT, isRestored)
                 putInt(KEY_SELECTED_POSITION, selectedPosition)
-                id?.let {
-                    putInt(KEY_ISSUE_ID_FRAGMENT, id)
-                }
             }
             return fragment
         }
