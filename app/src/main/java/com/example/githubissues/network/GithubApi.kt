@@ -8,10 +8,10 @@ import retrofit2.http.Query
 
 interface GithubApi {
 
-    @GET("/repos/{owner}/{repo}/issues")
+    @GET("/repos/{owner}/{repo}/issues?per_page=100")
     fun getIssues(
         @Path("owner") owner : String,
         @Path("repo") repo : String,
-        @Query("page") page: String
+        @Query("state") state : String
     ): Call<List<Issue>>
 }

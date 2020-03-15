@@ -10,21 +10,20 @@ import com.example.githubissues.pojo.Issue
 import kotlinx.android.synthetic.main.issue_item.view.*
 
 class IssueAdapter(
-//    private val listener: OnItemClickListener,
-    var selectedPosition: Int
+
 ) : RecyclerView.Adapter<IssueAdapter.GitHubViewHolder>() {
 
     interface OnItemClickListener {
-        fun onItemClicked(issueId: Int, selectedPosition: Int)
+        fun onItemClicked(selectedIssue: Int)
     }
 
-
+    var selectedPosition: Int = 0
 
     private val issueList = arrayListOf<Issue>()
 
     private val listeners = arrayListOf<OnItemClickListener>()
 
-    fun addListener(onItemClickListener: OnItemClickListener){
+    fun addListener(onItemClickListener: OnItemClickListener) {
         listeners.add(onItemClickListener)
     }
 
@@ -33,15 +32,13 @@ class IssueAdapter(
         notifyDataSetChanged()
     }
 
-    fun clearItems(){
+    fun clearItems() {
         issueList.clear()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         GitHubViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.issue_item, parent, false)
-//            ,
-//            listener
         )
 
     override fun getItemCount() = issueList.size
@@ -55,12 +52,7 @@ class IssueAdapter(
         holder.onBind(issue)
     }
 
-    inner class GitHubViewHolder(
-        private val view: View
-//        ,
-//        private val listener: OnItemClickListener
-    ) :
-        RecyclerView.ViewHolder(view) {
+    inner class GitHubViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
 
         fun onBind(issue: Issue) {
 
@@ -72,9 +64,8 @@ class IssueAdapter(
                 selectedPosition = adapterPosition
                 notifyItemChanged(adapterPosition)
 
-//                listener.onItemClicked(issue.id, adapterPosition)
                 listeners.forEach {
-                    it.onItemClicked(issue.id, adapterPosition)
+                    it.onItemClicked(adapterPosition)
                 }
             }
         }

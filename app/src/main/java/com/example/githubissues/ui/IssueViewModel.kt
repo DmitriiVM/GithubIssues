@@ -23,11 +23,11 @@ class IssueViewModel : ViewModel() {
     val loadingLiveData: LiveData<Boolean>
         get() = _loadingLiveData
 
-    fun fetchIssues(page: String) {
+    fun fetchIssues() {
         _loadingLiveData.value = true
 
         GitHubApiService.gitHubApiService()
-            .getIssues(OWNER, REPO, page).enqueue(object : Callback<List<Issue>> {
+            .getIssues(OWNER, REPO, STATE).enqueue(object : Callback<List<Issue>> {
 
                 override fun onFailure(call: Call<List<Issue>>, t: Throwable) {
                     _loadingLiveData.postValue(false)
@@ -52,5 +52,6 @@ class IssueViewModel : ViewModel() {
         private const val REPO = "retrofit"
 //        private const val REPO = "GithubIssues"
 
+        private const val STATE = "open"
     }
 }
