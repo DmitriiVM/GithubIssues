@@ -15,6 +15,10 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_issue)
 
+        savedInstanceState?.let {
+            selectedIssue = it.getInt(KEY_SELECTED_ISSUE)
+        }
+
         if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
         }
@@ -25,13 +29,13 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
         }
 
         if (fragmentContainerDetail == null) {
-            if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is IssueFragment) {
-                addFragment(IssueFragment(), R.id.fragmentContainer)
-            }
+//            if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is IssueFragment) {
+                addFragment(IssueFragment.newInstance(selectedIssue), R.id.fragmentContainer)
+//            }
         } else {
-            if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is IssueFragment) {
-                addFragment(IssueFragment(), R.id.fragmentContainer)
-            }
+//            if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is IssueFragment) {
+                addFragment(IssueFragment.newInstance(selectedIssue), R.id.fragmentContainer)
+//            }
 
             addFragment(IssueDetailFragment.newInstance(selectedIssue), R.id.fragmentContainerDetail)
         }
@@ -44,6 +48,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
     }
 
     override fun onItemClicked(selectedIssue: Int) {
+        this.selectedIssue = selectedIssue
         if (fragmentContainerDetail == null) {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             supportFragmentManager.beginTransaction()
@@ -67,5 +72,15 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
     override fun onBackPressed() {
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         super.onBackPressed()
+    }
+
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(KEY_SELECTED_ISSUE, selectedIssue)
+        super.onSaveInstanceState(outState)
+    }
+
+    companion object {
+        private const val KEY_SELECTED_ISSUE = "key_selected_issue"
     }
 }

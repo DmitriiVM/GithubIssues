@@ -1,7 +1,9 @@
 package com.example.githubissues.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +18,7 @@ class IssueFragment : Fragment(R.layout.fragment_issue){
 
     private lateinit var viewModel: IssueViewModel
     private lateinit var adapter: IssueAdapter
+    private var selectedIssue = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,13 +26,16 @@ class IssueFragment : Fragment(R.layout.fragment_issue){
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        selectedIssue = arguments?.getInt(KEY_ISSUE_DETAIL_FRAGMENT) ?: 0
+
         setRecyclerView()
         setSwipeRefreshListener()
         subscribeObservers()
     }
 
     private fun setRecyclerView() {
-        adapter = IssueAdapter()
+        adapter = IssueAdapter(selectedIssue)
         if (requireActivity() is IssueAdapter.OnItemClickListener) {
             adapter.addListener(requireActivity() as IssueAdapter.OnItemClickListener)
         }
@@ -68,6 +74,21 @@ class IssueFragment : Fragment(R.layout.fragment_issue){
     private fun showMessage(message: String) {
         view?.let {
             Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
+
+
+    companion object {
+
+        private const val KEY_ISSUE_DETAIL_FRAGMENT = "issue_detail_fragment_key"
+
+        fun newInstance(id: Int): Fragment {
+            val fragment = IssueFragment()
+            fragment.arguments = Bundle().apply {
+                putInt(KEY_ISSUE_DETAIL_FRAGMENT, id)
+            }
+            return fragment
         }
     }
 }

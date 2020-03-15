@@ -10,14 +10,12 @@ import com.example.githubissues.pojo.Issue
 import kotlinx.android.synthetic.main.issue_item.view.*
 
 class IssueAdapter(
-
+    var selectedPosition: Int
 ) : RecyclerView.Adapter<IssueAdapter.GitHubViewHolder>() {
 
     interface OnItemClickListener {
         fun onItemClicked(selectedIssue: Int)
     }
-
-    var selectedPosition: Int = 0
 
     private val issueList = arrayListOf<Issue>()
 
