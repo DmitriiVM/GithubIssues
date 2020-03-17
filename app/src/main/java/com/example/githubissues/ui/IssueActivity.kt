@@ -3,6 +3,7 @@ package com.example.githubissues.ui
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import com.example.githubissues.R
 import kotlinx.android.synthetic.main.activity_issue.*
@@ -19,9 +20,10 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
             selectedIssue = it.getInt(KEY_SELECTED_ISSUE)
         }
 
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            supportFragmentManager.popBackStack()
-        }
+        supportFragmentManager.popBackStack(
+            "detail_fragment",
+            FragmentManager.POP_BACK_STACK_INCLUSIVE
+        )
 
         val viewModel = ViewModelProvider(this).get(IssueViewModel::class.java)
         if (viewModel.issuesLiveData.value == null) {
@@ -29,15 +31,18 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
         }
 
         if (fragmentContainerDetail == null) {
-//            if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is IssueFragment) {
+            if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is IssueFragment) {
                 addFragment(IssueFragment.newInstance(selectedIssue), R.id.fragmentContainer)
-//            }
+            }
         } else {
-//            if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is IssueFragment) {
+            if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is IssueFragment) {
                 addFragment(IssueFragment.newInstance(selectedIssue), R.id.fragmentContainer)
-//            }
+            }
 
-            addFragment(IssueDetailFragment.newInstance(selectedIssue), R.id.fragmentContainerDetail)
+            addFragment(
+                IssueDetailFragment.newInstance(selectedIssue),
+                R.id.fragmentContainerDetail
+            )
         }
     }
 
@@ -57,10 +62,13 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
                     R.anim.enter_from_left_to_right, R.anim.exit_from_left_ti_right
                 )
                 .replace(R.id.fragmentContainer, IssueDetailFragment.newInstance(selectedIssue))
-                .addToBackStack(null)
+                .addToBackStack("detail_fragment")
                 .commit()
         } else {
-            addFragment(IssueDetailFragment.newInstance(selectedIssue), R.id.fragmentContainerDetail)
+            addFragment(
+                IssueDetailFragment.newInstance(selectedIssue),
+                R.id.fragmentContainerDetail
+            )
         }
     }
 

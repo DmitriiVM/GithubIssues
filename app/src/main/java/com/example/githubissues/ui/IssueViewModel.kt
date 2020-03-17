@@ -48,10 +48,7 @@ class IssueViewModel : ViewModel() {
 
     companion object {
         private const val OWNER = "square"
-//        private const val OWNER = "DmitriiVM"
         private const val REPO = "retrofit"
-//        private const val REPO = "GithubIssues"
-
         private const val STATE = "open"
     }
 }
