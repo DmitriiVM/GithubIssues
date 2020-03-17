@@ -59,9 +59,12 @@ class IssueAdapter(
 
             view.setOnClickListener {
 
-                notifyItemChanged(selectedIssue)
-                selectedIssue = adapterPosition
-                notifyItemChanged(adapterPosition)
+                if (showSelection) {
+                    notifyItemChanged(selectedIssue)
+                    selectedIssue = adapterPosition
+                    itemView.isSelected = true
+                    notifyItemChanged(adapterPosition)
+                }
 
                 listeners.forEach {
                     it.onItemClicked(adapterPosition)
