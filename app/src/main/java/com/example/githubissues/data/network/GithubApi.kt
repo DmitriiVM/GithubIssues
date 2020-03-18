@@ -1,4 +1,4 @@
-package com.example.githubissues.network
+package com.example.githubissues.data.network
 
 import com.example.githubissues.pojo.Issue
 import retrofit2.Call

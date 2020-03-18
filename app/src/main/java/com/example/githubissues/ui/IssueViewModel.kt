@@ -3,7 +3,7 @@ package com.example.githubissues.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.githubissues.network.GitHubApiService
+import com.example.githubissues.data.network.GitHubApiService
 import com.example.githubissues.pojo.Issue
 import retrofit2.Call
 import retrofit2.Callback
