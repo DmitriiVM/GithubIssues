@@ -21,7 +21,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
         }
 
         supportFragmentManager.popBackStack(
-            "detail_fragment",
+            BACK_STACK_DETAIL_FRAGMENT,
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
 
@@ -64,7 +64,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
                     R.anim.enter_from_left_to_right, R.anim.exit_from_left_ti_right
                 )
                 .replace(R.id.fragmentContainer, IssueDetailFragment.newInstance(selectedIssue))
-                .addToBackStack("detail_fragment")
+                .addToBackStack(BACK_STACK_DETAIL_FRAGMENT)
                 .commit()
         } else {
             val transaction = supportFragmentManager.beginTransaction()
@@ -103,5 +103,6 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
 
     companion object {
         private const val KEY_SELECTED_ISSUE = "key_selected_issue"
+        private const val BACK_STACK_DETAIL_FRAGMENT = "detail_fragment"
     }
 }

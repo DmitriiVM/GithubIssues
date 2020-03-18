@@ -39,13 +39,12 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
         adapter.addListener(this)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.hasFixedSize()
+        recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
     }
 
     private fun setSwipeRefreshListener() {
         swipeRefreshLayout.setOnRefreshListener {
-            adapter.clearItems()
             viewModel.fetchIssues()
         }
     }

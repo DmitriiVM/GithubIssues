@@ -26,12 +26,8 @@ class IssueAdapter(
     }
 
     fun addItems(newIssueList: List<Issue>) {
-        issueList.addAll(newIssueList)
-        notifyDataSetChanged()
-    }
-
-    fun clearItems() {
         issueList.clear()
+        issueList.addAll(newIssueList)
         notifyDataSetChanged()
     }
 
