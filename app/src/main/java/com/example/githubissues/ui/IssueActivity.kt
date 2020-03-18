@@ -53,7 +53,9 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
     }
 
     override fun onItemClicked(selectedIssue: Int) {
+        val previousSelectedIssue = this.selectedIssue
         this.selectedIssue = selectedIssue
+
         if (fragmentContainerDetail == null) {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             supportFragmentManager.beginTransaction()
@@ -65,10 +67,21 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
                 .addToBackStack("detail_fragment")
                 .commit()
         } else {
-            addFragment(
-                IssueDetailFragment.newInstance(selectedIssue),
-                R.id.fragmentContainerDetail
-            )
+            val transaction = supportFragmentManager.beginTransaction()
+            if (fragmentContainerDetail != null) {
+                if (previousSelectedIssue < selectedIssue){
+                    transaction.setCustomAnimations(
+                        R.anim.enter_to_top, R.anim.enter_from_bottom
+                    )
+                } else if (previousSelectedIssue > selectedIssue){
+                    transaction.setCustomAnimations(
+                        R.anim.enter_from_top , R.anim.enter_to_bottom
+                    )
+                }
+            }
+            transaction
+                .replace(R.id.fragmentContainerDetail, IssueDetailFragment.newInstance(selectedIssue))
+                .commit()
         }
     }
 
