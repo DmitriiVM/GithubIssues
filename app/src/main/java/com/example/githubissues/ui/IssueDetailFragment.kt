@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.githubissues.R
 import com.example.githubissues.pojo.Issue
+import com.example.githubissues.util.IssueViewModelFactory
 import kotlinx.android.synthetic.main.fragment_issue_detail.*
 
 class IssueDetailFragment : Fragment(R.layout.fragment_issue_detail) {
@@ -18,8 +19,10 @@ class IssueDetailFragment : Fragment(R.layout.fragment_issue_detail) {
     }
 
     private fun subscribeObservers(selectedIssue: Int) {
-        val viewModel = ViewModelProvider(requireActivity()).get(IssueViewModel::class.java)
-        viewModel.issuesLiveData.observe(viewLifecycleOwner, Observer<List<Issue>> { issueList ->
+        val viewModelFactory = IssueViewModelFactory(requireContext())
+        val viewModel =
+            ViewModelProvider(requireActivity(), viewModelFactory).get(IssueViewModel::class.java)
+        viewModel.getLiveData().observe(viewLifecycleOwner, Observer<List<Issue>> { issueList ->
             textViewNumber.text = issueList[selectedIssue].number.toString()
             textViewTitle.text = issueList[selectedIssue].title
             textViewBody.text = issueList[selectedIssue].body

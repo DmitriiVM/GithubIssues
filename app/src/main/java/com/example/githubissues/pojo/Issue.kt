@@ -7,24 +7,24 @@ import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "issue")
 data class Issue(
-    val body: String,
+    val body: String?,
     @SerializedName("closed_at")
     @ColumnInfo(name = "closed_at")
-    val closedAt: Any,
-    val comments: Int,
+    val closedAt: String?,
+    val comments: Int?,
     @SerializedName("created_at")
     @ColumnInfo(name = "created_at")
-    val createdAt: String,
+    val createdAt: String?,
     @PrimaryKey
     val id: Int,
-    val number: Int,
+    val number: Int?,
     @SerializedName("repository_url")
     @ColumnInfo(name = "repository_url")
-    val repositoryUrl: String,
-    val state: String,
-    val title: String,
+    val repositoryUrl: String?,
+    val state: String?,
+    val title: String?,
     @SerializedName("updated_at")
     @ColumnInfo(name = "updated_at")
-    val updatedAt: String,
-    val url: String
+    val updatedAt: String?,
+    val url: String?
 )

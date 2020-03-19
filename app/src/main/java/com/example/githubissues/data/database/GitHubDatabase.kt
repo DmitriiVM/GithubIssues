@@ -20,13 +20,16 @@ abstract class GitHubDatabase : RoomDatabase() {
 
         private val LOCK = Any()
 
-        fun getInstance(context : Context) : GitHubDatabase = database ?: synchronized(LOCK){
+        fun getInstance(context: Context): GitHubDatabase = database ?: synchronized(LOCK) {
             database ?: buildDatabase(context).also {
                 database = it
             }
         }
 
-        private fun buildDatabase(context : Context) : GitHubDatabase
-                = Room.databaseBuilder(context.applicationContext, GitHubDatabase::class.java, DB_NAME).build()
+        private fun buildDatabase(context: Context): GitHubDatabase = Room.databaseBuilder(
+            context.applicationContext,
+            GitHubDatabase::class.java,
+            DB_NAME
+        ).fallbackToDestructiveMigration().build()
     }
 }

@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import com.example.githubissues.R
+import com.example.githubissues.util.IssueViewModelFactory
 import kotlinx.android.synthetic.main.activity_issue.*
 
 class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
@@ -25,9 +26,10 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
 
-        val viewModel = ViewModelProvider(this).get(IssueViewModel::class.java)
-        if (viewModel.issuesLiveData.value == null) {
-            viewModel.fetchIssues()
+        val viewModelFactory = IssueViewModelFactory(this)
+        val viewModel = ViewModelProvider(this, viewModelFactory).get(IssueViewModel::class.java)
+        if (viewModel.getLiveData().value == null) {
+            viewModel.getLiveData()
         }
 
         if (fragmentContainerDetail == null) {
@@ -69,18 +71,21 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
         } else {
             val transaction = supportFragmentManager.beginTransaction()
             if (fragmentContainerDetail != null) {
-                if (previousSelectedIssue < selectedIssue){
+                if (previousSelectedIssue < selectedIssue) {
                     transaction.setCustomAnimations(
                         R.anim.enter_to_top, R.anim.enter_from_bottom
                     )
-                } else if (previousSelectedIssue > selectedIssue){
+                } else if (previousSelectedIssue > selectedIssue) {
                     transaction.setCustomAnimations(
-                        R.anim.enter_from_top , R.anim.enter_to_bottom
+                        R.anim.enter_from_top, R.anim.enter_to_bottom
                     )
                 }
             }
             transaction
-                .replace(R.id.fragmentContainerDetail, IssueDetailFragment.newInstance(selectedIssue))
+                .replace(
+                    R.id.fragmentContainerDetail,
+                    IssueDetailFragment.newInstance(selectedIssue)
+                )
                 .commit()
         }
     }

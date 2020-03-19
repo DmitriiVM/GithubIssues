@@ -1,14 +1,15 @@
 package com.example.githubissues.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.githubissues.R
 import com.example.githubissues.pojo.Issue
+import com.example.githubissues.util.IssueViewModelFactory
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_issue.*
 
@@ -17,12 +18,20 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     private lateinit var viewModel: IssueViewModel
     private lateinit var adapter: IssueAdapter
     private var selectedIssue = 0
+    private var isBeforeLoadFromInternet = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(requireActivity()).get(IssueViewModel::class.java)
+        val viewModelFactory = IssueViewModelFactory(requireContext())
+        viewModel =
+            ViewModelProvider(requireActivity(), viewModelFactory).get(IssueViewModel::class.java)
+        viewModel.fetchDataFromNetwork()
 
         selectedIssue = savedInstanceState?.getInt(KEY_ISSUE_POSITION)
             ?: (arguments?.getInt(KEY_ISSUE_POSITION) ?: 0)
+
+        if (savedInstanceState != null) {
+            isBeforeLoadFromInternet = false
+        }
 
         setRecyclerView()
         setSwipeRefreshListener()
@@ -45,17 +54,20 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
 
     private fun setSwipeRefreshListener() {
         swipeRefreshLayout.setOnRefreshListener {
-            viewModel.fetchIssues()
+            swipeRefreshLayout.isRefreshing = true
+            viewModel.fetchDataFromNetwork()
         }
     }
 
     private fun subscribeObservers() {
-        viewModel.issuesLiveData.observe(viewLifecycleOwner, Observer<List<Issue>> { issueList ->
-            if (issueList.isEmpty()) {
+        swipeRefreshLayout.isRefreshing = true
+        viewModel.getLiveData().observe(viewLifecycleOwner, Observer<List<Issue>> { issueList ->
+
+            if (!isBeforeLoadFromInternet && issueList.isEmpty()) {
                 showMessage(getString(R.string.message_empty_list))
-            } else {
-                adapter.addItems(issueList)
             }
+            adapter.addItems(issueList)
+            isBeforeLoadFromInternet = false
         })
         viewModel.loadingLiveData.observe(viewLifecycleOwner, Observer<Boolean> {
             swipeRefreshLayout.isRefreshing = it
