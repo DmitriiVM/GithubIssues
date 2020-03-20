@@ -3,9 +3,11 @@ package com.example.githubissues.ui
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.githubissues.R
 import com.example.githubissues.pojo.Issue
+import com.example.githubissues.util.IssueDiffUtilCallback
 import kotlinx.android.synthetic.main.issue_item.view.*
 
 class IssueAdapter(
@@ -26,9 +28,12 @@ class IssueAdapter(
     }
 
     fun addItems(newIssueList: List<Issue>) {
+        val diffResult = DiffUtil.calculateDiff(
+            IssueDiffUtilCallback(issueList, newIssueList)
+        )
+        diffResult.dispatchUpdatesTo(this)
         issueList.clear()
         issueList.addAll(newIssueList)
-        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GitHubViewHolder {
