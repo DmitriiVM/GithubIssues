@@ -1,5 +1,6 @@
 package com.example.githubissues.ui
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +29,7 @@ class IssueAdapter(
     }
 
     fun addItems(newIssueList: List<Issue>) {
+        Log.d("mmm", "IssueAdapter :  addItems --  ")
         val diffResult = DiffUtil.calculateDiff(
             IssueDiffUtilCallback(issueList, newIssueList)
         )
