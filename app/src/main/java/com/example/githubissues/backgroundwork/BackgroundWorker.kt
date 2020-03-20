@@ -19,7 +19,7 @@ class BackgroundWorker(context: Context, params: WorkerParameters) : Worker(cont
 
     override fun doWork(): Result {
 
-//        Log.d("mmm", "BackgroundWorker :  doWork --  ")
+        Log.d("mmm", "BackgroundWorker :  doWork --  ")
         GitHubApiService.gitHubApiService().getIssues(OWNER, REPO, STATE_ALL)
             .enqueue(object : Callback<List<Issue>> {
 

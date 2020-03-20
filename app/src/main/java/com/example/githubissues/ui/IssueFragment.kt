@@ -1,7 +1,6 @@
 package com.example.githubissues.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -16,25 +15,26 @@ import com.example.githubissues.util.STATE_OPEN
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_issue.*
 
-class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClickListener {
+class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClickListener{
 
     private lateinit var viewModel: IssueViewModel
     private lateinit var adapter: IssueAdapter
-    private var selectedIssue = 0
-    private var isBeforeLoadFromInternet = true
-    private var issueState = STATE_ALL
+    private lateinit var radioButtonListener : RadioButtonListener
     private var issueList = arrayListOf<Issue>()
+    private var selectedIssue = 0
+    private var issueState = STATE_ALL
+    private var isBeforeLoadFromInternet = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        issueState = savedInstanceState?.getString(KEY_STATE) ?: STATE_ALL
 
         val viewModelFactory = IssueViewModelFactory(requireContext())
         viewModel =
             ViewModelProvider(requireActivity(), viewModelFactory).get(IssueViewModel::class.java)
-//        viewModel.fetchDataFromNetwork()
 
-        selectedIssue = savedInstanceState?.getInt(KEY_ISSUE_POSITION)
-            ?: (arguments?.getInt(KEY_ISSUE_POSITION) ?: 0)
+        selectedIssue = savedInstanceState?.getInt(KEY_SELECTED_ISSUE)
+            ?: arguments?.getInt(KEY_SELECTED_ISSUE) ?: 0
+        issueState = savedInstanceState?.getString(KEY_STATE)
+            ?: arguments?.getString(KEY_STATE) ?: STATE_ALL
 
         if (savedInstanceState != null) {
             isBeforeLoadFromInternet = false
@@ -43,21 +43,21 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
         setRecyclerView()
         setSwipeRefreshListener()
         subscribeObservers()
-
         setRadioGroup()
     }
 
     private fun setRecyclerView() {
-        val showSelection =
-            requireActivity().findViewById<View>(R.id.fragmentContainerDetail) != null
-        adapter = IssueAdapter(selectedIssue, showSelection)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.setHasFixedSize(true)
+        initAdapter(selectedIssue)
+    }
+
+    private fun initAdapter(selectedIssue: Int) {
+        adapter = IssueAdapter(selectedIssue, isDetailContainerAvailable())
         if (requireActivity() is IssueAdapter.OnItemClickListener) {
             adapter.addListener(requireActivity() as IssueAdapter.OnItemClickListener)
         }
         adapter.addListener(this)
-
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
     }
 
@@ -69,21 +69,54 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     }
 
     private fun setRadioGroup() {
-        radioButtonGroup.setOnCheckedChangeListener { group, checkedId ->
-            when (checkedId) {
-                R.id.radioButtonAll -> issueState = STATE_ALL
-                R.id.radioButtonOpen -> issueState = STATE_OPEN
-                R.id.radioButtonClosed -> issueState = STATE_CLOSED
+        setRadioButtonChecked()
+
+        radioButtonGroup.setOnCheckedChangeListener { _, checkedId ->
+            setIssueState(checkedId)
+            if (isDetailContainerAvailable()){
+                initAdapter(0)
+                notifyRadioButtonChanged(filterList()[0].id)
+            } else {
+                notifyRadioButtonChanged(0)
             }
             showIssues()
         }
     }
 
+    private fun setRadioButtonChecked() {
+        when (issueState) {
+            STATE_ALL -> radioButtonGroup.check(R.id.radioButtonAll)
+            STATE_OPEN -> radioButtonGroup.check(R.id.radioButtonOpen)
+            STATE_CLOSED -> radioButtonGroup.check(R.id.radioButtonClosed)
+        }
+    }
+
+    private fun setIssueState(checkedId: Int) {
+        issueState = when (checkedId) {
+            R.id.radioButtonAll -> STATE_ALL
+            R.id.radioButtonOpen -> STATE_OPEN
+            else -> STATE_CLOSED
+        }
+    }
+
+    private fun isDetailContainerAvailable() =
+        requireActivity().findViewById<View>(R.id.fragmentContainerDetail) != null
+
+    private fun filterList() = when (issueState) {
+        STATE_ALL -> issueList
+        STATE_OPEN -> issueList.filter { it.state == STATE_OPEN }
+        else -> issueList.filter { it.state == STATE_CLOSED }
+    }
+
+    private fun notifyRadioButtonChanged(issueId: Int){
+        if (::radioButtonListener.isInitialized) {
+            radioButtonListener.onRadioButtonChange(issueId, issueState)
+        }
+    }
+
     private fun subscribeObservers() {
         swipeRefreshLayout.isRefreshing = true
-        viewModel.getLiveData().observe(viewLifecycleOwner, Observer<List<Issue>> { issueList ->
-
-
+        viewModel.getDatabaseLiveData().observe(viewLifecycleOwner, Observer<List<Issue>> { issueList ->
             if (!isBeforeLoadFromInternet && issueList.isEmpty()) {
                 showMessage(getString(R.string.message_empty_list))
             }
@@ -94,19 +127,13 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
         viewModel.loadingLiveData.observe(viewLifecycleOwner, Observer<Boolean> {
             swipeRefreshLayout.isRefreshing = it
         })
-        viewModel.errorLiveData.observe(viewLifecycleOwner, Observer<String> {
+        viewModel.messageLiveData.observe(viewLifecycleOwner, Observer<String> {
             showMessage(it)
         })
     }
 
     private fun showIssues() {
-
-        val filteredList = when (issueState) {
-            STATE_ALL -> issueList
-            STATE_OPEN -> issueList.filter { it.state == STATE_OPEN }
-            else -> issueList.filter { it.state == STATE_CLOSED }
-        }
-        adapter.addItems(filteredList)
+        adapter.addItems(filterList())
     }
 
     private fun showMessage(message: String) {
@@ -120,20 +147,31 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt(KEY_ISSUE_POSITION, selectedIssue)
-        outState.putString(KEY_STATE, issueState)
+        with(outState){
+            putInt(KEY_SELECTED_ISSUE, selectedIssue)
+            putString(KEY_STATE, issueState)
+        }
         super.onSaveInstanceState(outState)
+    }
+
+    interface RadioButtonListener{
+        fun onRadioButtonChange(issueId: Int, issueState : String)
+    }
+
+    fun setRadioButtonListener(radioButtonListener : RadioButtonListener){
+        this.radioButtonListener = radioButtonListener
     }
 
     companion object {
 
-        private const val KEY_ISSUE_POSITION = "key_issue_position"
+        private const val KEY_SELECTED_ISSUE = "key_issue_position"
         private const val KEY_STATE = "key_state"
 
-        fun newInstance(id: Int): Fragment {
+        fun newInstance(id: Int, issueState: String): Fragment {
             val fragment = IssueFragment()
             fragment.arguments = Bundle().apply {
-                putInt(KEY_ISSUE_POSITION, id)
+                putInt(KEY_SELECTED_ISSUE, id)
+                putString(KEY_STATE, issueState)
             }
             return fragment
         }

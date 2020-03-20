@@ -27,20 +27,19 @@ class IssueViewModel(context: Context) : ViewModel() {
     var isDataLoaded = false
 
     private val _messageLiveData = MutableLiveData<String>()
-    val errorLiveData: LiveData<String>
+    val messageLiveData: LiveData<String>
         get() = _messageLiveData
 
     private val _loadingLiveData = MutableLiveData<Boolean>()
     val loadingLiveData: LiveData<Boolean>
         get() = _loadingLiveData
 
-    fun getLiveData(): LiveData<List<Issue>> {
-        isDataLoaded = true
+    fun getDatabaseLiveData(): LiveData<List<Issue>> {
         return database.getIssueList()
     }
 
     fun fetchDataFromNetwork() {
-
+        isDataLoaded = true
         _loadingLiveData.value = true
 
         GitHubApiService.gitHubApiService()
@@ -64,12 +63,10 @@ class IssueViewModel(context: Context) : ViewModel() {
                             }
                             if (issueList.isEmpty()) {
                                 _messageLiveData.value = "Список проблем пуст"
-                                Log.d("mmm", "IssueViewModel :  onResponse --  Список проблем пуст")
                             }
                         }
                     } else {
                         _messageLiveData.postValue(response.message())
-                        Log.d("mmm", "IssueViewModel :  onResponse --  ${response.message()}")
                     }
                 }
             })
