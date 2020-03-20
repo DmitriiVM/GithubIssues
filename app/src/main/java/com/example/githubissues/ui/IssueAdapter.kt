@@ -29,7 +29,6 @@ class IssueAdapter(
     }
 
     fun addItems(newIssueList: List<Issue>) {
-        Log.d("mmm", "IssueAdapter :  addItems --  ")
         val diffResult = DiffUtil.calculateDiff(
             IssueDiffUtilCallback(issueList, newIssueList)
         )
