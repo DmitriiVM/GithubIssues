@@ -1,5 +1,6 @@
 package com.example.githubissues.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -40,7 +41,7 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
         if (savedInstanceState != null) {
             isBeforeLoadFromInternet = false
         }
-
+        Log.d("mmm", "IssueFragment :  onViewCreated --  ${this.hashCode()}")
         setRecyclerView()
         setSwipeRefreshListener()
         subscribeObservers()
@@ -114,6 +115,10 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     }
 
     private fun notifyRadioButtonChanged(issueId: Int?){
+        Log.d(
+            "mmm",
+            "IssueFragment :  notifyRadioButtonChanged --  ${::radioButtonListener.isInitialized}"
+        )
         if (::radioButtonListener.isInitialized) {
             radioButtonListener.onRadioButtonChange(issueId, issueState)
         }
@@ -135,8 +140,6 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     }
 
     private fun showIssues() {
-        Log.d("mmm", "IssueFragment :  showIssues --  ${filterList().size}")
-
         if (!isBeforeLoadFromInternet && filterList().isEmpty()) {
             showMessage(getString(R.string.message_empty_list))
         }
@@ -166,8 +169,10 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     }
 
     fun setRadioButtonListener(radioButtonListener : RadioButtonListener){
+        Log.d("mmm", "IssueFragment :  setRadioButtonListener --  ")
         this.radioButtonListener = radioButtonListener
     }
+
 
     companion object {
 
