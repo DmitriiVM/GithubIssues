@@ -1,13 +1,16 @@
 package com.example.githubissues.backgroundwork
 
 import android.content.Context
+import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.githubissues.data.database.GitHubDatabase
 import com.example.githubissues.data.network.GitHubApiService
 import com.example.githubissues.pojo.Issue
-import com.example.githubissues.ui.IssueViewModel
-import com.example.githubissues.util.AppExecutors
+import com.example.githubissues.util.*
+import com.example.githubissues.util.OWNER
+import com.example.githubissues.util.REPO
+import com.example.githubissues.util.STATE_OPEN
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,7 +19,8 @@ class BackgroundWorker(context: Context, params: WorkerParameters) : Worker(cont
 
     override fun doWork(): Result {
 
-        GitHubApiService.gitHubApiService().getIssues(IssueViewModel.OWNER, IssueViewModel.REPO, IssueViewModel.STATE)
+//        Log.d("mmm", "BackgroundWorker :  doWork --  ")
+        GitHubApiService.gitHubApiService().getIssues(OWNER, REPO, STATE_ALL)
             .enqueue(object : Callback<List<Issue>> {
 
                 override fun onFailure(call: Call<List<Issue>>, t: Throwable) {}
@@ -24,6 +28,7 @@ class BackgroundWorker(context: Context, params: WorkerParameters) : Worker(cont
                 override fun onResponse(call: Call<List<Issue>>, response: Response<List<Issue>>) {
                     if (response.isSuccessful) {
                         response.body()?.let {
+                            Log.d("mmm", "BackgroundWorker :  onResponse --  ${it.size}")
                             AppExecutors.diskIO.execute {
                                 with(GitHubDatabase.getInstance(applicationContext).gitHubDao()){
                                     deleteAllIssues()

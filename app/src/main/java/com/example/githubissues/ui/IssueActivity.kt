@@ -28,8 +28,8 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
 
         val viewModelFactory = IssueViewModelFactory(this)
         val viewModel = ViewModelProvider(this, viewModelFactory).get(IssueViewModel::class.java)
-        if (viewModel.getLiveData().value == null) {
-            viewModel.getLiveData()
+        if (!viewModel.isDataLoaded) {
+            viewModel.fetchDataFromNetwork()
         }
 
         if (fragmentContainerDetail == null) {
@@ -54,7 +54,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
             .commit()
     }
 
-    override fun onItemClicked(selectedIssue: Int) {
+    override fun onItemClicked(selectedIssue: Int, issueId : Int) {
         val previousSelectedIssue = this.selectedIssue
         this.selectedIssue = selectedIssue
 
@@ -65,7 +65,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
                     R.anim.enter_from_right_to_left, R.anim.exit_from_right_to_left,
                     R.anim.enter_from_left_to_right, R.anim.exit_from_left_ti_right
                 )
-                .replace(R.id.fragmentContainer, IssueDetailFragment.newInstance(selectedIssue))
+                .replace(R.id.fragmentContainer, IssueDetailFragment.newInstance(issueId))
                 .addToBackStack(BACK_STACK_DETAIL_FRAGMENT)
                 .commit()
         } else {
@@ -84,7 +84,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener {
             transaction
                 .replace(
                     R.id.fragmentContainerDetail,
-                    IssueDetailFragment.newInstance(selectedIssue)
+                    IssueDetailFragment.newInstance(issueId)
                 )
                 .commit()
         }

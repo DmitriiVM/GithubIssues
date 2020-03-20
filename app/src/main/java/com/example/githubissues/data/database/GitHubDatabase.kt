@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.githubissues.pojo.Issue
 
-@Database(entities = [Issue::class], version = 1, exportSchema = false)
+@Database(entities = [Issue::class], version = 2, exportSchema = false)
 abstract class GitHubDatabase : RoomDatabase() {
 
     abstract fun gitHubDao(): GitHubDao

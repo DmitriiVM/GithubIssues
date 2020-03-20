@@ -8,7 +8,10 @@ import com.example.githubissues.backgroundwork.BackgroundWorker
 import com.example.githubissues.data.database.GitHubDatabase
 import com.example.githubissues.data.network.GitHubApiService
 import com.example.githubissues.pojo.Issue
-import com.example.githubissues.util.AppExecutors
+import com.example.githubissues.util.*
+import com.example.githubissues.util.OWNER
+import com.example.githubissues.util.REPO
+import com.example.githubissues.util.STATE_OPEN
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -21,6 +24,7 @@ class IssueViewModel(context: Context) : ViewModel() {
     }
 
     private var database = GitHubDatabase.getInstance(context.applicationContext).gitHubDao()
+    var isDataLoaded = false
 
     private val _messageLiveData = MutableLiveData<String>()
     val errorLiveData: LiveData<String>
@@ -30,14 +34,17 @@ class IssueViewModel(context: Context) : ViewModel() {
     val loadingLiveData: LiveData<Boolean>
         get() = _loadingLiveData
 
-    fun getLiveData(): LiveData<List<Issue>> = database.getIssueList()
+    fun getLiveData(): LiveData<List<Issue>> {
+        isDataLoaded = true
+        return database.getIssueList()
+    }
 
     fun fetchDataFromNetwork() {
 
         _loadingLiveData.value = true
 
         GitHubApiService.gitHubApiService()
-            .getIssues(OWNER, REPO, STATE).enqueue(object : Callback<List<Issue>> {
+            .getIssues(OWNER, REPO, STATE_ALL).enqueue(object : Callback<List<Issue>> {
 
                 override fun onFailure(call: Call<List<Issue>>, t: Throwable) {
                     _loadingLiveData.value = false
@@ -57,10 +64,12 @@ class IssueViewModel(context: Context) : ViewModel() {
                             }
                             if (issueList.isEmpty()) {
                                 _messageLiveData.value = "Список проблем пуст"
+                                Log.d("mmm", "IssueViewModel :  onResponse --  Список проблем пуст")
                             }
                         }
                     } else {
                         _messageLiveData.postValue(response.message())
+                        Log.d("mmm", "IssueViewModel :  onResponse --  ${response.message()}")
                     }
                 }
             })
@@ -84,12 +93,5 @@ class IssueViewModel(context: Context) : ViewModel() {
 
     companion object {
         private const val REFRESH_INTERVAL_IN_MINUTES = 15L
-
-//        private const val OWNER = "square"
-//        private const val REPO = "retrofit"
-        const val STATE = "open"
-
-        const val OWNER = "DmitriiVM"
-        const val REPO = "Test"
     }
 }

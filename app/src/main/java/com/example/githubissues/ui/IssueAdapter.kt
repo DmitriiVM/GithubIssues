@@ -14,7 +14,7 @@ class IssueAdapter(
 ) : RecyclerView.Adapter<IssueAdapter.GitHubViewHolder>() {
 
     interface OnItemClickListener {
-        fun onItemClicked(selectedIssue: Int)
+        fun onItemClicked(selectedIssue: Int, issueId : Int)
     }
 
     private val issueList = arrayListOf<Issue>()
@@ -63,7 +63,7 @@ class IssueAdapter(
                 }
 
                 listeners.forEach {
-                    it.onItemClicked(adapterPosition)
+                    it.onItemClicked(adapterPosition, issue.id)
                 }
             }
         }
