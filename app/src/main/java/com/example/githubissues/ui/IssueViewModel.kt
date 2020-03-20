@@ -54,7 +54,6 @@ class IssueViewModel(context: Context) : ViewModel() {
                     _loadingLiveData.value = false
                     if (response.isSuccessful) {
                         response.body()?.let { issueList ->
-
                             AppExecutors.diskIO.execute {
                                 database.apply {
                                     deleteAllIssues()

@@ -10,7 +10,6 @@ import com.example.githubissues.pojo.Issue
 import com.example.githubissues.util.*
 import com.example.githubissues.util.OWNER
 import com.example.githubissues.util.REPO
-import com.example.githubissues.util.STATE_OPEN
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

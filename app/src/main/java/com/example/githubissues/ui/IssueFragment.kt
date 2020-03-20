@@ -1,6 +1,7 @@
 package com.example.githubissues.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -75,7 +76,11 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
             setIssueState(checkedId)
             if (isDetailContainerAvailable()){
                 initAdapter(0)
-                notifyRadioButtonChanged(filterList()[0].id)
+                if (filterList().isNotEmpty()){
+                    notifyRadioButtonChanged(filterList()[0].id)
+                } else {
+                    notifyRadioButtonChanged(null)
+                }
             } else {
                 notifyRadioButtonChanged(0)
             }
@@ -108,7 +113,7 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
         else -> issueList.filter { it.state == STATE_CLOSED }
     }
 
-    private fun notifyRadioButtonChanged(issueId: Int){
+    private fun notifyRadioButtonChanged(issueId: Int?){
         if (::radioButtonListener.isInitialized) {
             radioButtonListener.onRadioButtonChange(issueId, issueState)
         }
@@ -117,9 +122,6 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     private fun subscribeObservers() {
         swipeRefreshLayout.isRefreshing = true
         viewModel.getDatabaseLiveData().observe(viewLifecycleOwner, Observer<List<Issue>> { issueList ->
-            if (!isBeforeLoadFromInternet && issueList.isEmpty()) {
-                showMessage(getString(R.string.message_empty_list))
-            }
             this.issueList = issueList as ArrayList<Issue>
             showIssues()
             isBeforeLoadFromInternet = false
@@ -133,6 +135,11 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     }
 
     private fun showIssues() {
+        Log.d("mmm", "IssueFragment :  showIssues --  ${filterList().size}")
+
+        if (!isBeforeLoadFromInternet && filterList().isEmpty()) {
+            showMessage(getString(R.string.message_empty_list))
+        }
         adapter.addItems(filterList())
     }
 
@@ -155,7 +162,7 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     }
 
     interface RadioButtonListener{
-        fun onRadioButtonChange(issueId: Int, issueState : String)
+        fun onRadioButtonChange(issueId: Int?, issueState : String)
     }
 
     fun setRadioButtonListener(radioButtonListener : RadioButtonListener){

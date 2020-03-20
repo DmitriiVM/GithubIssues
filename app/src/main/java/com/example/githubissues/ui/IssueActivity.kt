@@ -88,10 +88,10 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
         }
     }
 
-    override fun onRadioButtonChange(issueId: Int, issueState: String) {
+    override fun onRadioButtonChange(issueId: Int?, issueState: String) {
         this.issueState = issueState
         if (fragmentContainerDetail != null) {
-            addFragment(R.id.fragmentContainerDetail, IssueDetailFragment.newInstance(issueId))
+            addFragment(R.id.fragmentContainerDetail, IssueDetailFragment.newInstance(issueId ?: -1))
         }
     }
 
