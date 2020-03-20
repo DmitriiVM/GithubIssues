@@ -18,7 +18,6 @@ class BackgroundWorker(context: Context, params: WorkerParameters) : Worker(cont
 
     override fun doWork(): Result {
 
-        Log.d("mmm", "BackgroundWorker :  doWork --  ")
         GitHubApiService.gitHubApiService().getIssues(OWNER, REPO, STATE_ALL)
             .enqueue(object : Callback<List<Issue>> {
 
@@ -27,7 +26,6 @@ class BackgroundWorker(context: Context, params: WorkerParameters) : Worker(cont
                 override fun onResponse(call: Call<List<Issue>>, response: Response<List<Issue>>) {
                     if (response.isSuccessful) {
                         response.body()?.let {
-                            Log.d("mmm", "BackgroundWorker :  onResponse --  ${it.size}")
                             AppExecutors.diskIO.execute {
                                 with(GitHubDatabase.getInstance(applicationContext).gitHubDao()){
                                     deleteAllIssues()
