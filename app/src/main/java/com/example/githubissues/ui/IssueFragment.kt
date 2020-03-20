@@ -1,8 +1,6 @@
 package com.example.githubissues.ui
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -41,11 +39,17 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
         if (savedInstanceState != null) {
             isBeforeLoadFromInternet = false
         }
-        Log.d("mmm", "IssueFragment :  onViewCreated --  ${this.hashCode()}")
         setRecyclerView()
         setSwipeRefreshListener()
         subscribeObservers()
         setRadioGroup()
+    }
+
+    override fun onResume() {
+        if (requireActivity() is IssueActivity){
+            (requireActivity() as IssueActivity).setRadioButtonListener()
+        }
+        super.onResume()
     }
 
     private fun setRecyclerView() {
@@ -115,10 +119,6 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     }
 
     private fun notifyRadioButtonChanged(issueId: Int?){
-        Log.d(
-            "mmm",
-            "IssueFragment :  notifyRadioButtonChanged --  ${::radioButtonListener.isInitialized}"
-        )
         if (::radioButtonListener.isInitialized) {
             radioButtonListener.onRadioButtonChange(issueId, issueState)
         }
@@ -169,10 +169,8 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     }
 
     fun setRadioButtonListener(radioButtonListener : RadioButtonListener){
-        Log.d("mmm", "IssueFragment :  setRadioButtonListener --  ")
         this.radioButtonListener = radioButtonListener
     }
-
 
     companion object {
 

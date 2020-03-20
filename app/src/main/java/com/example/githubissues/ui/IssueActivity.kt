@@ -1,7 +1,6 @@
 package com.example.githubissues.ui
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -52,16 +51,9 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
         supportFragmentManager.beginTransaction().replace(container, fragment).commit()
     }
 
-    override fun onAttachFragment(fragment: Fragment) {
+    fun setRadioButtonListener(){
         (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as IssueFragment)
             .setRadioButtonListener(this)
-        Log.d("mmm", "IssueActivity :  onAttachFragment --  ${fragment.hashCode()}")
-        super.onAttachFragment(fragment)
-    }
-
-    override fun onResumeFragments() {
-        Log.d("mmm", "IssueActivity :  onResumeFragments --  ")
-        super.onResumeFragments()
     }
 
     override fun onItemClicked(selectedIssue: Int, issueId: Int) {
@@ -96,7 +88,6 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
 
     override fun onRadioButtonChange(issueId: Int?, issueState: String) {
         this.issueState = issueState
-        Log.d("mmm", "IssueActivity :  onRadioButtonChange --  $issueState")
         if (fragmentContainerDetail != null) {
             addFragment(R.id.fragmentContainerDetail, IssueDetailFragment.newInstance(issueId ?: -1))
         }
@@ -114,8 +105,6 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
 
         if (fragmentContainerDetail == null && supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
-
-            Log.d("mmm", "IssueActivity :  onBackPressed --  $issueState")
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.enter_from_left_to_right, R.anim.exit_from_left_ti_right)
                 .replace(R.id.fragmentContainer, IssueFragment.newInstance(selectedIssue, issueState))

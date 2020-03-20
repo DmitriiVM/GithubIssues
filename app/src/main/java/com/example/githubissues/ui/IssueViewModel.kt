@@ -84,7 +84,7 @@ class IssueViewModel(context: Context) : ViewModel() {
             .setConstraints(constraints)
             .build()
 
-//        WorkManager.getInstance(context).enqueue(workerRequest)
+        WorkManager.getInstance(context).enqueue(workerRequest)
     }
 
     companion object {
