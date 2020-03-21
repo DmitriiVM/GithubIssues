@@ -56,8 +56,6 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
             .setRadioButtonListener(this)
     }
 
-    fun
-
     override fun onItemClicked(selectedIssue: Int, issueId: Int) {
         val previousSelectedIssue = this.selectedIssue
         this.selectedIssue = selectedIssue
