@@ -8,8 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.githubissues.R
 import com.example.githubissues.pojo.Issue
-import com.example.githubissues.util.IssueViewModelFactory
-import com.example.githubissues.util.STATE_ALL
+import com.example.githubissues.util.*
 import com.example.githubissues.util.STATE_CLOSED
 import com.example.githubissues.util.STATE_OPEN
 import com.google.android.material.snackbar.Snackbar
@@ -22,7 +21,7 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     private lateinit var radioButtonListener : RadioButtonListener
     private var issueList = arrayListOf<Issue>()
     private var selectedIssue = 0
-    private var issueState = STATE_ALL
+    private var issueState = IssueState.STATE_ALL
     private var isBeforeLoadFromInternet = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -31,10 +30,11 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
         viewModel =
             ViewModelProvider(requireActivity(), viewModelFactory).get(IssueViewModel::class.java)
 
+
         selectedIssue = savedInstanceState?.getInt(KEY_SELECTED_ISSUE)
             ?: arguments?.getInt(KEY_SELECTED_ISSUE) ?: 0
-        issueState = savedInstanceState?.getString(KEY_STATE)
-            ?: arguments?.getString(KEY_STATE) ?: STATE_ALL
+        issueState = savedInstanceState?.getSerializable(KEY_STATE) as IssueState?
+            ?: arguments?.getSerializable(KEY_STATE) as IssueState? ?: IssueState.STATE_ALL
 
         if (savedInstanceState != null) {
             isBeforeLoadFromInternet = false
@@ -95,17 +95,17 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
 
     private fun setRadioButtonChecked() {
         when (issueState) {
-            STATE_ALL -> radioButtonGroup.check(R.id.radioButtonAll)
-            STATE_OPEN -> radioButtonGroup.check(R.id.radioButtonOpen)
-            STATE_CLOSED -> radioButtonGroup.check(R.id.radioButtonClosed)
+            IssueState.STATE_ALL -> radioButtonGroup.check(R.id.radioButtonAll)
+            IssueState.STATE_OPEN -> radioButtonGroup.check(R.id.radioButtonOpen)
+            IssueState.STATE_CLOSED -> radioButtonGroup.check(R.id.radioButtonClosed)
         }
     }
 
     private fun setIssueState(checkedId: Int) {
         issueState = when (checkedId) {
-            R.id.radioButtonAll -> STATE_ALL
-            R.id.radioButtonOpen -> STATE_OPEN
-            else -> STATE_CLOSED
+            R.id.radioButtonAll -> IssueState.STATE_ALL
+            R.id.radioButtonOpen -> IssueState.STATE_OPEN
+            else -> IssueState.STATE_CLOSED
         }
     }
 
@@ -113,9 +113,9 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
         requireActivity().findViewById<View>(R.id.fragmentContainerDetail) != null
 
     private fun filterList() = when (issueState) {
-        STATE_ALL -> issueList
-        STATE_OPEN -> issueList.filter { it.state == STATE_OPEN }
-        else -> issueList.filter { it.state == STATE_CLOSED }
+        IssueState.STATE_ALL -> issueList
+        IssueState.STATE_OPEN -> issueList.filter { it.state == STATE_OPEN }
+        IssueState.STATE_CLOSED -> issueList.filter { it.state == STATE_CLOSED }
     }
 
     private fun notifyRadioButtonChanged(issueId: Int?){
@@ -159,13 +159,13 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
     override fun onSaveInstanceState(outState: Bundle) {
         with(outState){
             putInt(KEY_SELECTED_ISSUE, selectedIssue)
-            putString(KEY_STATE, issueState)
+            putSerializable(KEY_STATE, issueState)
         }
         super.onSaveInstanceState(outState)
     }
 
     interface RadioButtonListener{
-        fun onRadioButtonChange(issueId: Int?, issueState : String)
+        fun onRadioButtonChange(issueId: Int?, issueState : IssueState)
     }
 
     fun setRadioButtonListener(radioButtonListener : RadioButtonListener){
@@ -177,11 +177,11 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
         private const val KEY_SELECTED_ISSUE = "key_issue_position"
         private const val KEY_STATE = "key_state"
 
-        fun newInstance(id: Int, issueState: String): Fragment {
+        fun newInstance(id: Int, issueState: IssueState): Fragment {
             val fragment = IssueFragment()
             fragment.arguments = Bundle().apply {
                 putInt(KEY_SELECTED_ISSUE, id)
-                putString(KEY_STATE, issueState)
+                putSerializable(KEY_STATE, issueState)
             }
             return fragment
         }

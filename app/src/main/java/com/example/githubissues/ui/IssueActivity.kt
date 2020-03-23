@@ -6,8 +6,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import com.example.githubissues.R
+import com.example.githubissues.util.IssueState
 import com.example.githubissues.util.IssueViewModelFactory
-import com.example.githubissues.util.STATE_ALL
 import kotlinx.android.synthetic.main.activity_issue.*
 
 class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
@@ -15,7 +15,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
 
     private var selectedIssue = 0
     private var issueId = 0
-    private var issueState = STATE_ALL
+    private var issueState = IssueState.STATE_ALL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,7 +24,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
         savedInstanceState?.let {
             selectedIssue = it.getInt(KEY_SELECTED_ISSUE)
             issueId = it.getInt(KEY__ISSUE_ID)
-            issueState = it.getString(KEY_STATE) ?: STATE_ALL
+            issueState = it.getSerializable(KEY_STATE) as IssueState? ?: IssueState.STATE_ALL
         }
 
         supportFragmentManager.popBackStack(
@@ -86,7 +86,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
         }
     }
 
-    override fun onRadioButtonChange(issueId: Int?, issueState: String) {
+    override fun onRadioButtonChange(issueId: Int?, issueState: IssueState) {
         this.issueState = issueState
         if (fragmentContainerDetail != null) {
             addFragment(R.id.fragmentContainerDetail, IssueDetailFragment.newInstance(issueId ?: -1))
@@ -118,7 +118,7 @@ class IssueActivity : AppCompatActivity(), IssueAdapter.OnItemClickListener,
         with(outState) {
             putInt(KEY_SELECTED_ISSUE, selectedIssue)
             putInt(KEY__ISSUE_ID, issueId)
-            putString(KEY_STATE, issueState)
+            putSerializable(KEY_STATE, issueState)
         }
         super.onSaveInstanceState(outState)
     }

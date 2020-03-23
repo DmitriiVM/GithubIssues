@@ -13,5 +13,5 @@ interface GithubApi {
         @Path("owner") owner : String,
         @Path("repo") repo : String,
         @Query("state") state : String
-    ): Call<List<Issue>>
+    ): Call<List<IssueResponse>>
 }

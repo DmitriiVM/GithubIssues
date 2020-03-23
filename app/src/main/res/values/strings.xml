@@ -10,4 +10,5 @@
     <string name="state_all">Все</string>
     <string name="state_open">Открытые</string>
     <string name="state_closed">Закрытые</string>
+    <string name="empty_list">Список проблем пуст</string>
 </resources>
