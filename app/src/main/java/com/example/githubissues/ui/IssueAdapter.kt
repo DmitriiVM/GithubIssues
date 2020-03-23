@@ -1,6 +1,5 @@
 package com.example.githubissues.ui
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,12 +28,20 @@ class IssueAdapter(
     }
 
     fun addItems(newIssueList: List<Issue>) {
+        notifyItemChanged(selectedIssue)
+        selectedIssue = 0
+        notifyItemChanged(selectedIssue)
+
         val diffResult = DiffUtil.calculateDiff(
             IssueDiffUtilCallback(issueList, newIssueList)
         )
         diffResult.dispatchUpdatesTo(this)
         issueList.clear()
         issueList.addAll(newIssueList)
+
+        notifyItemChanged(selectedIssue)
+        selectedIssue = 0
+        notifyItemChanged(selectedIssue)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GitHubViewHolder {

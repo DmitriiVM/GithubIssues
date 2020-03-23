@@ -80,7 +80,6 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
         radioButtonGroup.setOnCheckedChangeListener { _, checkedId ->
             setIssueState(checkedId)
             if (isDetailContainerAvailable()){
-                initAdapter(0)
                 if (filterList().isNotEmpty()){
                     notifyRadioButtonChanged(filterList()[0].id)
                 } else {
@@ -144,6 +143,7 @@ class IssueFragment : Fragment(R.layout.fragment_issue), IssueAdapter.OnItemClic
             showMessage(getString(R.string.message_empty_list))
         }
         adapter.addItems(filterList())
+        recyclerView.smoothScrollToPosition(0)
     }
 
     private fun showMessage(message: String) {
