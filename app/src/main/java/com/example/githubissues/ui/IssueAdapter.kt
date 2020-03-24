@@ -3,9 +3,11 @@ package com.example.githubissues.ui
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.githubissues.R
 import com.example.githubissues.pojo.Issue
+import com.example.githubissues.util.IssueDiffUtilCallback
 import kotlinx.android.synthetic.main.issue_item.view.*
 
 class IssueAdapter(
@@ -14,7 +16,7 @@ class IssueAdapter(
 ) : RecyclerView.Adapter<IssueAdapter.GitHubViewHolder>() {
 
     interface OnItemClickListener {
-        fun onItemClicked(selectedIssue: Int)
+        fun onItemClicked(selectedIssue: Int, issueId : Int)
     }
 
     private val issueList = arrayListOf<Issue>()
@@ -26,9 +28,20 @@ class IssueAdapter(
     }
 
     fun addItems(newIssueList: List<Issue>) {
+        notifyItemChanged(selectedIssue)
+        selectedIssue = 0
+        notifyItemChanged(selectedIssue)
+
+        val diffResult = DiffUtil.calculateDiff(
+            IssueDiffUtilCallback(issueList, newIssueList)
+        )
+        diffResult.dispatchUpdatesTo(this)
         issueList.clear()
         issueList.addAll(newIssueList)
-        notifyDataSetChanged()
+
+        notifyItemChanged(selectedIssue)
+        selectedIssue = 0
+        notifyItemChanged(selectedIssue)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GitHubViewHolder {
@@ -63,7 +76,7 @@ class IssueAdapter(
                 }
 
                 listeners.forEach {
-                    it.onItemClicked(adapterPosition)
+                    it.onItemClicked(adapterPosition, issue.id)
                 }
             }
         }
